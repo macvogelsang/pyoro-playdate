@@ -1,7 +1,6 @@
 
 class('Player').extends(playdate.graphics.sprite)
 
-
 -- local references
 local Point = playdate.geometry.point
 local Rect = playdate.geometry.rect
@@ -102,12 +101,6 @@ function Player:update()
 		self.velocity.x = self.velocity.x * GROUND_FRICTION
 	end
 
-	-- if playdate.buttonJustPressed("A") then
-	-- 	self:jump()
-	-- elseif playdate.buttonIsPressed("A") then
-	-- 	self:continueJump()
-	-- end
-	
 	-- set the maximum velocity based on if the O button is down or not
 	if playdate.buttonIsPressed("B") then
 		MAX_RUN_VELOCITY = 120
@@ -132,7 +125,6 @@ function Player:update()
 	
 	if runImageIndex > 2.5 then runImageIndex = 1 end
 		
-	
 	-- update Player position based on current velocity
 	local velocityStep = self.velocity * dt
 	self.position = self.position + velocityStep
