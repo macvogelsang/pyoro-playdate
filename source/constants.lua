@@ -1,0 +1,5 @@
+
+X_LOWER_BOUND = 50 
+X_UPPER_BOUND = 350 
+
+LEFT, RIGHT = -1, 1
