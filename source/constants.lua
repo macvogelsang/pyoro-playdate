@@ -12,3 +12,10 @@ DT =  1/30
 COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP, COLLIDE_BLOCK_GROUP = 1, 2, 3
 
 gfx = playdate.graphics
+
+--[[
+
+See you later!
+
+
+]]--

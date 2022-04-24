@@ -6,10 +6,10 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local EXTEND_VELOCITY = 140
-local RETRACT_MULTIPLIER = -3
+local EXTEND_VELOCITY = 160
+local RETRACT_MULTIPLIER = -5
 local TONGUE_WIDTH = 11
-local SEGMENT_WIDTH = 7 -- lower width means more overlap between segment sprites
+local SEGMENT_WIDTH = 5 -- lower width means more overlap between segment sprites
 
 -- local variables - these are "class local" but since we only have one tongue this isn't a problem
 local minXPosition = X_LOWER_BOUND + TONGUE_WIDTH/2
@@ -36,6 +36,8 @@ function Tongue:init(x, y, direction)
 	self.position = Point.new(x, y)
 	self.retracted = false
 	self.retracting = false
+
+	self.food = nil
 
 	if direction == LEFT then
 		self.velocity = vector2D.new(-EXTEND_VELOCITY,-EXTEND_VELOCITY)
@@ -135,12 +137,8 @@ function Tongue:removeSegmentsUntil(numSegments)
 	end
 end
 
-function Tongue:getScore() 
-	if self.food then
-		return 50
-	else
-		return 0
-	end
+function Tongue:hasFood() 
+	return self.food ~= nil
 end
 
 

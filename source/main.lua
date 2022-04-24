@@ -4,6 +4,7 @@ import "CoreLibs/sprites"
 import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import "constants"
+import "util"
 import "player"
 import "tongue"
 import 'level'

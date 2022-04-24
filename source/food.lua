@@ -33,6 +33,8 @@ function Food:init(type, speed)
 	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
 
 	self.captured = false 
+	self.capturedPosition = nil
+	self.scored = false
 	self.endPosition = Point.new(0,0) 
 
 	-- determine the block this food is aligned with and set x
@@ -51,6 +53,7 @@ end
 function Food:capture(endPosition)
 	self.velocity = vector2D.new(0, 0) 
 	self.endPosition = endPosition
+	self.capturedPosition = self.position
 	self.captured = true
 	self:clearCollideRect()
 end

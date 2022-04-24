@@ -58,6 +58,7 @@ function Player:init()
 
 	self.minXPosition = LEFT_WALL 
 	self.maxXPosition = RIGHT_WALL
+
 	self.position = Point.new(INIT_X, INIT_Y)
 	self.velocity = vector2D.new(0,0)
 end
@@ -68,7 +69,10 @@ function Player:reset()
 	self.velocity = vector2D.new(0,0)
 end
 
-
+function Player:resetBounds()
+	self.minXPosition = LEFT_WALL 
+	self.maxXPosition = RIGHT_WALL
+end
 
 -- function Player:collisionResponse(other)
 -- 	if other:isa(Coin) or (other:isa(Enemy) and other.crushed == true) then
@@ -82,12 +86,11 @@ end
 function Player:update()
 
 	if self.tongue and self.tongue.retracted then
-		local score = self.tongue:getScore()
-		self.tongue = nil
-		self.animationIndex = 1
-		if score > 0 then
+		if self.tongue:hasFood() then
 			self.munching = true
 		end
+		self.tongue = nil
+		self.animationIndex = 1
 	end
 
 	if playdate.buttonIsPressed("left") and not self.tongue then
@@ -173,8 +176,8 @@ function Player:updateImage()
 	end
 end
 
-function Player:setMaxX(x)
-	maxXPosition = x
+function Player:hasTongue() 
+	return self.tongue ~= nil
 end
 
 function Player:runLeft()

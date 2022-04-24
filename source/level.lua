@@ -1,5 +1,6 @@
 import 'food'
 import 'block'
+import 'angel'
 
 class('Level').extends(playdate.graphics.sprite)
 
@@ -40,11 +41,9 @@ end
 
 function Level:setBlocks()
     self.blocks = {}
-    local xPos = 50
 
     for i = 1, NUM_BLOCKS do
-        table.insert(self.blocks, Block(xPos))
-        xPos += BLOCK_WIDTH
+        table.insert(self.blocks, Block(i))
     end
 end
 
@@ -81,6 +80,27 @@ function Level:update()
         end
     end
 
+    -- check for food
+    if player:hasTongue() and player.tongue:hasFood() then
+        local food = player.tongue.food
+
+        if not food.scored then
+            local blockIndex = player.tongue.food.blockIndex
+            
+            -- handle heal and clear foods
+            if food.type == HEAL then
+                local dists = self:calcGapDistsToPlayer()
+                if #dists > 0 then
+                    local block = self.blocks[dists[1].blockIndex]
+                    Angel(block)
+                end
+            end
+            
+            food.scored = true
+        end
+        
+    end
+
 end
 
 function Level:spawnFood()
@@ -89,10 +109,24 @@ function Level:spawnFood()
         speed = 'MED'
     end
     local type = NORMAL
-    if math.random() < 0.1 then
+    if math.random() < 0.5 then
         type = HEAL
     end
 
     table.insert(self.activeFood, Food(type, speed))
 end
 
+function Level:calcGapDistsToPlayer()
+    local dists = {}
+    for i, b in ipairs(self.blocks) do
+        if not b.placed then
+            table.insert(dists, {
+                dist = math.abs(b.xCenter - player.position.x), 
+                blockIndex = i}
+            )
+        end
+    end
+
+    table.sort(dists, function(a, b) return a.dist < b.dist end)
+    return dists
+end
