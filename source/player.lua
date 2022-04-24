@@ -47,7 +47,6 @@ function Player:init()
 	self:moveTo(INIT_X, INIT_Y)
 	self:setCollideRect(1,1,20,16)
 	self:setGroups({COLLIDE_PLAYER_GROUP})
-	self:setCollidesWithGroups({COLLIDE_BLOCK_GROUP})
 	
 	self.collisionResponse = gfx.sprite.kCollisionTypeOverlap
 	self.animationIndex = 1
@@ -69,8 +68,11 @@ function Player:reset()
 	self.velocity = vector2D.new(0,0)
 end
 
-function Player:resetBounds()
+function Player:resetMinXPosition()
 	self.minXPosition = LEFT_WALL 
+end
+
+function Player:resetMaxXPosition()
 	self.maxXPosition = RIGHT_WALL
 end
 

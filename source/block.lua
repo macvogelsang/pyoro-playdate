@@ -7,7 +7,6 @@ function Block:init(i)
     self.blockIndex = i
     self.xPos = blockIndexToX(self.blockIndex) 
     self.xCenter = self.xPos + BLOCK_WIDTH/2
-    self:setGroups({COLLIDE_BLOCK_GROUP})
     self:setCenter(0,0)
     self:place()
     self:add()
@@ -16,18 +15,14 @@ end
 -- places the block at the bottom of the screen and sets its image
 function Block:place()
     self.placed = true
-    self.collided = false -- 'clean' this is a new block which hasn't touched the player
     self:setImage(blockImg)
+    self:setVisible(true)
     self:moveTo(self.xPos, 229)
-    self:setCollideRect(0,0,BLOCK_WIDTH, BLOCK_WIDTH)
-    player:resetBounds()
+    doBoundCalculation = true
 end
 
--- 'destroy' a block by making it invisible and shifting it up
+-- 'destroy' a block by making it invisible
 function Block:destroy()
-    if self.placed then
-        self:setImage(nil)
-        self:moveBy(0, -10)
-        self.placed = false
-    end
+    self:setVisible(false)
+    self.placed = false
 end

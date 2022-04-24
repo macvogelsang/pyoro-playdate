@@ -10,6 +10,7 @@ local NORMAL, HEAL, CLEAR = 1, 2, 3
 local PLAYER_OVERHANG_OFFSET = 2
 
 local bgImg = playdate.graphics.image.new('img/background')
+doBoundCalculation = false
 
 function Level:init()
     Level.super.init(self)
@@ -59,6 +60,7 @@ function Level:update()
         local food = self.activeFood[i]
         if food.hitGround then
              self.blocks[food.blockIndex]:destroy()
+             doBoundCalculation = true
         end
         if food.delete then
             table.remove(self.activeFood, i)
@@ -66,18 +68,22 @@ function Level:update()
     end    
     
     -- move player and adjust its bounds
-    local _x, _y, collisions, numCollisions = player:moveWithCollisions(player.position)
-    if numCollisions > 0 then
-        local block = collisions[1].other
-        
-        if block.x < player.position.x and not block.collided then
-            player.minXPosition = block.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET
-            block.collided = true
+    player:moveTo(player.position)
+    if doBoundCalculation then
+        local left, right = self:getDirectionalDistsToPlayer()
+        if #left > 0 then
+            local leftBlock = self.blocks[left[1].blockIndex]
+            player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET
+        else
+            player:resetMinXPosition()
         end
-        if block.x >= player.position.x and not block.collided then
-            player.maxXPosition = block.x - PLAYER_OVERHANG_OFFSET
-            block.collided = true
+        if # right > 0 then
+            local rightBlock = self.blocks[right[1].blockIndex]
+            player.maxXPosition = rightBlock.x - PLAYER_OVERHANG_OFFSET
+        else
+            player:resetMaxXPosition()
         end
+        doBoundCalculation = false
     end
 
     -- check for food
@@ -85,11 +91,10 @@ function Level:update()
         local food = player.tongue.food
 
         if not food.scored then
-            local blockIndex = player.tongue.food.blockIndex
-            
+
             -- handle heal and clear foods
             if food.type == HEAL then
-                local dists = self:calcGapDistsToPlayer()
+                local dists = self:getAbsoluteDistsToPlayer()
                 if #dists > 0 then
                     local block = self.blocks[dists[1].blockIndex]
                     Angel(block)
@@ -98,9 +103,7 @@ function Level:update()
             
             food.scored = true
         end
-        
     end
-
 end
 
 function Level:spawnFood()
@@ -116,17 +119,33 @@ function Level:spawnFood()
     table.insert(self.activeFood, Food(type, speed))
 end
 
-function Level:calcGapDistsToPlayer()
-    local dists = {}
+function Level:getDirectionalDistsToPlayer()
+    local nearLeft = {} -- hold negative distances
+    local nearRight = {} -- hold positive distances
     for i, b in ipairs(self.blocks) do
         if not b.placed then
-            table.insert(dists, {
-                dist = math.abs(b.xCenter - player.position.x), 
-                blockIndex = i}
-            )
+            local dist = b.xCenter - player.position.x
+            if dist < 0 then
+                table.insert(nearLeft, {dist = dist, blockIndex = i})
+            else
+                table.insert(nearRight, {dist = dist, blockIndex = i})
+            end
         end
     end
+    table.sort(nearLeft, function(a, b) return a.dist > b.dist end)
+    table.sort(nearRight, function(a, b) return a.dist < b.dist end)
+    return nearLeft, nearRight
+end
 
+function Level:getAbsoluteDistsToPlayer()
+    local dists = {}
+
+    for i, b in ipairs(self.blocks) do
+        if not b.placed then
+            local dist = math.abs(b.xCenter - player.position.x)
+            table.insert(dists, {dist = dist, blockIndex = i})
+        end
+    end
     table.sort(dists, function(a, b) return a.dist < b.dist end)
     return dists
 end

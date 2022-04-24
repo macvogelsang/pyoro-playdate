@@ -2,7 +2,8 @@
   "playdate.output": "bin/Output.pdx",
   "Lua.diagnostics.globals": [
     "import",
-    "playdate"
+    "playdate",
+    "doBoundCalculation"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"
