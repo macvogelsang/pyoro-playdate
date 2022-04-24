@@ -6,6 +6,7 @@ import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import "player"
 import "tongue"
+import 'level'
 
 local pd <const> = playdate
 gfx = pd.graphics
@@ -13,10 +14,11 @@ gfx = pd.graphics
 local player = Player()
 
 local function initialize()
-    local img = gfx.image.new('img/background')
-    local background = gfx.sprite.new(img)
-    background:add()
-    background:moveTo(200, 120)
+
+    math.randomseed(playdate.getSecondsSinceEpoch())
+    playdate.display.setRefreshRate(REFRESH_RATE)
+
+    local level = Level()
 
     player:add()
 
@@ -27,6 +29,7 @@ initialize()
 
 
 function pd.update() 
+    playdate.drawFPS()
     gfx.sprite.update()
     playdate.timer.updateTimers()
     player:moveWithCollisions(player.position)

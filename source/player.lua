@@ -15,6 +15,8 @@ local MAX_VELOCITY = 600
 local SPEED_OF_RUNNING = 50			-- thea velocity at which we decide the player is running rather than walking
 local GROUND_FRICTION = 0.8
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
+local MUNCH_TIME_SEC = 0.5
+local MUNCH_SPEED = 6 -- how many long is each munch cycle
 
 local INIT_X = 192
 local INIT_Y = 228
@@ -33,7 +35,6 @@ local maxXPosition = X_UPPER_BOUND - playerWidth/2
 
 local RUN_VELOCITY = 14 
 local MAX_RUN_VELOCITY = 240
-local runImageIndex = 1
 
 
 function Player:init()
@@ -46,10 +47,13 @@ function Player:init()
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
 	self:moveTo(INIT_X, INIT_Y)
 	self:setCollideRect(0,0,18,18)
+	self:setGroups({COLLIDE_PLAYER_GROUP})
 	
+	self.animationIndex = 1
+	self.frame = 1
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
-	self.tongueOut = false
+	self.munching = false
 
 	self.position = Point.new(INIT_X, INIT_Y)
 	self.velocity = vector2D.new(0,0)
@@ -71,19 +75,21 @@ end
 -- 	return "slide"
 -- end
 
-
 -- called every frame, handles new input and does simple physics simulation
 function Player:update()
 
 	if self.tongue and self.tongue.retracted then
-		self.tongueOut = false
+		local score = self.tongue:getScore()
 		self.tongue = nil
-		runImageIndex = 1
+		self.animationIndex = 1
+		if score > 0 then
+			self.munching = true
+		end
 	end
 
-	if playdate.buttonIsPressed("left") and not self.tongueOut then
+	if playdate.buttonIsPressed("left") and not self.tongue then
 		self:runLeft()
-	elseif playdate.buttonIsPressed("right") and not self.tongueOut then
+	elseif playdate.buttonIsPressed("right") and not self.tongue then
 		self:runRight()
 	end
 
@@ -118,12 +124,22 @@ function Player:update()
 		self.velocity.x = 0
 		-- runImageIndex = 1
 	elseif abs(self.velocity.x) < 140 then
-		runImageIndex = runImageIndex + 0.5
+		self.animationIndex = self.animationIndex + 0.5
 	else
-		runImageIndex = runImageIndex + 1
+		self.animationIndex = self.animationIndex + 1
 	end
-	
-	if runImageIndex > 2.5 then runImageIndex = 1 end
+
+	if not self.munching then
+		self.frame = 1
+		if self.animationIndex > 2.5 then self.animationIndex = 1 end
+	else
+		self.frame = self.frame + 1
+		if self.frame > REFRESH_RATE * MUNCH_TIME_SEC then
+			self.munching = false
+		end
+		self.animationIndex = (self.frame % MUNCH_SPEED) < MUNCH_SPEED/2 and 1 or 4
+		print(self.animationIndex)
+	end
 		
 	-- update Player position based on current velocity
 	local velocityStep = self.velocity * dt
@@ -142,20 +158,18 @@ function Player:update()
 
 end
 
-
 -- sets the appropriate sprite image for Player based on the current conditions
 function Player:updateImage()
-	if self.tongueOut then
+	if self.tongue then
 		self:setImage(self.playerImages:getImage(CATCH), self.flip)
 	else
 		if self.velocity.x == 0 then
-			self:setImage(self.playerImages:getImage(floor(runImageIndex)), self.flip)
+			self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
 		else
-			self:setImage(self.playerImages:getImage(floor(runImageIndex)), self.flip)
+			self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
 		end
 	end
 end
-
 
 function Player:setMaxX(x)
 	maxXPosition = x
@@ -165,10 +179,12 @@ function Player:runLeft()
 	self.facing = LEFT
 	self.flip = gfx.kImageUnflipped
 	self.velocity.x = max(self.velocity.x - RUN_VELOCITY, -MAX_VELOCITY)
+	self.munching = false
 end
 
 function Player:runRight()
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
 	self.velocity.x = min(self.velocity.x + RUN_VELOCITY, MAX_VELOCITY)
+	self.munching = false
 end

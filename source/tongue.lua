@@ -6,8 +6,8 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local EXTEND_VELOCITY = 120
-local RETRACT_MULTIPLIER = -4
+local EXTEND_VELOCITY = 140
+local RETRACT_MULTIPLIER = -3
 local TONGUE_WIDTH = 11
 local SEGMENT_WIDTH = 7 -- lower width means more overlap between segment sprites
 
@@ -27,7 +27,8 @@ function Tongue:init(x, y, direction)
 	self:setZIndex(900)
 	self:setCenter(0.5, 0.5)	
 	self:moveTo(x, y)
-	-- self:setCollideRect(0,0,18,18)
+	self:setCollideRect(1,1,12,12)
+	self:setGroups({COLLIDE_TONGUE_GROUP})
 
 	self.segments = {}
 	
@@ -35,7 +36,6 @@ function Tongue:init(x, y, direction)
 	self.position = Point.new(x, y)
 	self.retracted = false
 	self.retracting = false
-	self.canCollide = true
 
 	if direction == LEFT then
 		self.velocity = vector2D.new(-EXTEND_VELOCITY,-EXTEND_VELOCITY)
@@ -88,16 +88,29 @@ function Tongue:update()
 		self:remove()
 	end
 
+	-- is the tongue colliding?
+	if not self.food then
+		local collisions = self:overlappingSprites()
+		if #collisions > 0 then
+			self.food = table.remove(collisions)
+			self:retract()
+			self.food:capture(self.startPosition)
+		end
+	end
+
+	if self.food then
+		self.food.position = self.position
+	end
+
 end
 
 function Tongue:retract() 
 	if not self.retracting then
 		self.velocity = self.velocity * RETRACT_MULTIPLIER
-		self.canCollide = false
 		self.retracting = true
+		self:clearCollideRect()
 	end
 end
-
 
 function Tongue:drawSegment()
 	if math.abs(self.position.x - self.startPosition.x)/SEGMENT_WIDTH > #self.segments then
@@ -114,6 +127,14 @@ function Tongue:removeSegmentsUntil(numSegments)
 	while #self.segments > numSegments do 
 		local segment = table.remove(self.segments)
 		segment:remove()
+	end
+end
+
+function Tongue:getScore() 
+	if self.food then
+		return 50
+	else
+		return 0
 	end
 end
 
