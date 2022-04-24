@@ -2,11 +2,15 @@
   "playdate.output": "bin/Output.pdx",
   "Lua.diagnostics.globals": [
     "import",
-    "playdate",
-    "Hexagon",
-    "HexaMoon"
+    "playdate"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"
-  ]
+  ],
+  "Lua.runtime.nonstandardSymbol": [
+    "+=",
+    "-=",
+    "*=",
+    "/="
+  ],
 }

@@ -7,7 +7,6 @@ local vector2D = playdate.geometry.vector2D
 
 -- constants
 local FOOD_WIDTH = 20
-local BLOCK_WIDTH = 10
 local FALL_VELOCITY = {SLOW=40, MED=60, FAST=100} 
 
 -- local variables - these are "class local" but since we only have one tongue this isn't a problem
@@ -30,12 +29,18 @@ function Food:init(type, speed)
 
 	self:setZIndex(800)
 	self:setCenter(0.5, 0.5)	
-	self:setCollideRect(1,1,18,18)
+	self:setCollideRect(4,1,12,18)
 	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
 
-	self.falling = true
+	self.captured = false 
 	self.endPosition = Point.new(0,0) 
-	self.position = Point.new(((math.random(30) * BLOCK_WIDTH) - 4) + X_LOWER_BOUND, 0)
+
+	-- determine the block this food is aligned with and set x
+	self.blockIndex = math.random(NUM_BLOCKS)
+	print(self.blockIndex)
+    local x = ((self.blockIndex * BLOCK_WIDTH) - 4) + X_LOWER_BOUND
+
+	self.position = Point.new(x, 0)
 	self.velocity = vector2D.new(0, self.speed)
 
 	self:moveTo(self.position)
@@ -46,10 +51,16 @@ end
 function Food:capture(endPosition)
 	self.velocity = vector2D.new(0, 0) 
 	self.endPosition = endPosition
-	self.falling = false
+	self.captured = true
 	self:clearCollideRect()
 end
 
+function Food:stop(hitGround)
+	self.velocity = vector2D.new(0, 0) 
+	self.hitGround = hitGround
+	self.delete = true
+	self:remove()
+end
 
 function Food:update()
 
@@ -57,13 +68,12 @@ function Food:update()
 	self.position = self.position + velocityStep
 	
 	-- don't move outside the walls of the game
-	if self.position.y > 230 then
-		self:remove()
+	if self.position.y >= 229 then
+		self:stop(true)
 	end
 
-	if not self.falling and (self.position.y >= self.endPosition.y - 10) then
-
-		self:remove()
+	if self.captured and (self.position.y >= self.endPosition.y - 10) then
+		self:stop(false)
 	end
 
 	self:moveTo(self.position)
@@ -77,7 +87,7 @@ function Food:update()
 end
 
 function Food:updateImage() 
-	if self.falling then
+	if not self.captured then
 		local imgCol = math.ceil(self.frame / 10)
 		if imgCol == 4 then imgCol = 2  end
 		self:setImage(foodTable:getImage(imgCol, self.imgRow))

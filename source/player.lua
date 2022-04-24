@@ -28,10 +28,9 @@ jumpTimer.discardOnCompletion = false
 
 -- local variables - these are "class local" but since we only have one player this isn't a problem
 
-playerStates = {}
 local playerWidth = 19
-local minXPosition = X_LOWER_BOUND + playerWidth/2
-local maxXPosition = X_UPPER_BOUND - playerWidth/2
+local LEFT_WALL = X_LOWER_BOUND + playerWidth/2 
+local RIGHT_WALL = X_UPPER_BOUND - playerWidth/2
 
 local RUN_VELOCITY = 14 
 local MAX_RUN_VELOCITY = 240
@@ -46,15 +45,19 @@ function Player:init()
 	self:setZIndex(1000)
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
 	self:moveTo(INIT_X, INIT_Y)
-	self:setCollideRect(0,0,18,18)
+	self:setCollideRect(1,1,20,16)
 	self:setGroups({COLLIDE_PLAYER_GROUP})
+	self:setCollidesWithGroups({COLLIDE_BLOCK_GROUP})
 	
+	self.collisionResponse = gfx.sprite.kCollisionTypeOverlap
 	self.animationIndex = 1
 	self.frame = 1
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
 	self.munching = false
 
+	self.minXPosition = LEFT_WALL 
+	self.maxXPosition = RIGHT_WALL
 	self.position = Point.new(INIT_X, INIT_Y)
 	self.velocity = vector2D.new(0,0)
 end
@@ -138,7 +141,6 @@ function Player:update()
 			self.munching = false
 		end
 		self.animationIndex = (self.frame % MUNCH_SPEED) < MUNCH_SPEED/2 and 1 or 4
-		print(self.animationIndex)
 	end
 		
 	-- update Player position based on current velocity
@@ -146,12 +148,12 @@ function Player:update()
 	self.position = self.position + velocityStep
 	
 	-- don't move outside the walls of the game
-	if self.position.x < minXPosition then
+	if self.position.x < self.minXPosition then
 		self.velocity.x = 0
-		self.position.x = minXPosition
-	elseif self.position.x > maxXPosition then
+		self.position.x = self.minXPosition
+	elseif self.position.x > self.maxXPosition then
 		self.velocity.x = 0
-		self.position.x = maxXPosition
+		self.position.x = self.maxXPosition
 	end
 	
 	self:updateImage()

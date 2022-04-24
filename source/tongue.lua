@@ -42,9 +42,9 @@ function Tongue:init(x, y, direction)
 	else
 		self.velocity = vector2D.new(EXTEND_VELOCITY,-EXTEND_VELOCITY)
 	end
-
-	self:add()
 	
+	self:setVisible(false)
+	self:add()
 end
 
 
@@ -72,7 +72,12 @@ function Tongue:update()
 	end
 
 	self:moveTo(self.position)
-	
+
+	-- only draw tongue after it extends a bit
+	if math.abs(self.position.y - self.startPosition.y) >= 10 then
+		self:setVisible(true)
+	end
+
 	-- handle tongue segments (aka tongue extension)
 	if not self.retracting then
 		self:drawSegment()
