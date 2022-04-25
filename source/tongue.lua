@@ -6,7 +6,7 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local EXTEND_VELOCITY = 160
+local EXTEND_VELOCITY = 200
 local RETRACT_MULTIPLIER = -5
 local TONGUE_WIDTH = 11
 local SEGMENT_WIDTH = 5 -- lower width means more overlap between segment sprites

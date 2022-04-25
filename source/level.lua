@@ -1,6 +1,8 @@
 import 'food'
 import 'block'
 import 'angel'
+import 'points'
+import 'score'
 
 class('Level').extends(playdate.graphics.sprite)
 
@@ -11,12 +13,14 @@ local PLAYER_OVERHANG_OFFSET = 2
 
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false
+globalScore = Score()
 
 function Level:init()
     Level.super.init(self)
 
     self:add()
     player:add()
+    globalScore:add()
 
     self.stage = 1
 
@@ -91,6 +95,9 @@ function Level:update()
         local food = player.tongue.food
 
         if not food.scored then
+            local points = self:calcPoints(food.capturedPosition.y)
+            globalScore:addPoints(points)
+            Points(points, food.capturedPosition)
 
             -- handle heal and clear foods
             if food.type == HEAL then
@@ -148,4 +155,18 @@ function Level:getAbsoluteDistsToPlayer()
     end
     table.sort(dists, function(a, b) return a.dist < b.dist end)
     return dists
+end
+
+function Level:calcPoints(y)
+    if y >= 163 then 
+        return 10
+    elseif y >= 115 then
+        return 50
+    elseif y >= 77 then
+        return 100
+    elseif y >= 39 then
+        return 300
+    else
+        return 1000
+    end
 end

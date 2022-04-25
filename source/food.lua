@@ -39,7 +39,6 @@ function Food:init(type, speed)
 
 	-- determine the block this food is aligned with and set x
 	self.blockIndex = math.random(NUM_BLOCKS)
-	print(self.blockIndex)
     local x = ((self.blockIndex * BLOCK_WIDTH) - 4) + X_LOWER_BOUND
 
 	self.position = Point.new(x, 0)

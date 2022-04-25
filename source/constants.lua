@@ -3,6 +3,11 @@ BLOCK_WIDTH = 10
 
 X_LOWER_BOUND = 50 
 X_UPPER_BOUND = 350 
+Y_LOWER_BOUND = 0
+Y_UPPER_BOUND = 228
+
+Y_RANGE = Y_UPPER_BOUND - Y_LOWER_BOUND
+SCORE_SECTION_HEIGHT = Y_RANGE / 5
 
 LEFT, RIGHT = -1, 1
 
@@ -16,6 +21,8 @@ gfx = playdate.graphics
 --[[
 
 See you later!
+Take a break!
+Better luck next time.
 
 
 ]]--

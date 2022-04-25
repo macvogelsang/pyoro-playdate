@@ -3,7 +3,8 @@
   "Lua.diagnostics.globals": [
     "import",
     "playdate",
-    "doBoundCalculation"
+    "doBoundCalculation",
+    "globalScore"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"
