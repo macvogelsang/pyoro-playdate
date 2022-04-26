@@ -4,6 +4,7 @@ import "CoreLibs/sprites"
 import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import "constants"
+import 'sfx'
 import "util"
 import 'score'
 import "tongue"
@@ -45,6 +46,7 @@ function playdate.debugDraw()
 end
 
 debugHarmlessFoodOn = false
+debugPlayerInvincible = false
 
 function playdate.keyReleased(key) 
     print(key)
@@ -55,5 +57,8 @@ function playdate.keyReleased(key)
     elseif key == 'h' then
         debugHarmlessFoodOn = not debugHarmlessFoodOn
         print('harmless food: ', debugHarmlessFoodOn)
+    elseif key == 'i' then
+        debugPlayerInvincible = not debugPlayerInvincible
+        print('player invincible: ', debugPlayerInvincible)
     end
 end

@@ -13,12 +13,16 @@ local FLASH_CYCLE_LEN = 4 * FRAME_LEN
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local imgTable = playdate.graphics.imagetable.new('img/angel')
 
+local OFFSET_DELAY = 0.3 * REFRESH_RATE -- time in seconds to offset angel falling
+local RESTORE_SEQ = {1,2,3,4,5,4,5,4,5,4}
+
 function Angel:init(block, offset)
 	
 	Angel.super.init(self)
 
 	self.speed = FALL_VELOCITY
-	self.spawnOffset = offset and offset * 5 * FRAME_LEN or 1
+	self.offset = offset or 1
+	self.startFrame = offset and (offset - 1) * OFFSET_DELAY or 1
 	self.frame = 1
 	self.block = block
 
@@ -34,7 +38,8 @@ function Angel:init(block, offset)
 
 	self:moveTo(self.position)
 	self:add()
-	
+
+	self.playedSound = false	
 end
 
 function Angel:reverse()
@@ -42,10 +47,16 @@ function Angel:reverse()
 	self.state = UP
 	self.block:place()
 	self.velocity = self.velocity * -1 
+	SFX:play({'restore' .. tostring(RESTORE_SEQ[self.offset])}, true)
 end
 
 function Angel:update()
-	if self.frame >= self.spawnOffset then
+	if self.frame >= self.startFrame then
+		if not self.playedSound then
+			SFX:play(SFX.kTenshi, true)
+			self.playedSound = true
+		end
+
 		local velocityStep = self.velocity * DT 
 		self.position = self.position + velocityStep
 		

@@ -180,7 +180,7 @@ function Level:update()
                     f.scored = true
                     f:hit()
                     globalScore:addPoints(50)
-                    Points(50, f.position, true)
+                    Points(50, f.position, true, i)
                 end
             end
 

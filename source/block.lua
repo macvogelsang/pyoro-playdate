@@ -23,6 +23,7 @@ end
 
 -- 'destroy' a block by making it invisible
 function Block:destroy()
+    SFX:play(SFX.kTileDestroy, true)
     self:setVisible(false)
     self.placed = false
 end

@@ -17,8 +17,7 @@ local GROUND_FRICTION = 0.8
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
 local MUNCH_TIME_SEC = 0.5
 local MUNCH_CYCLE_LEN = 6 * FRAME_LEN -- how many frames long each munch cycle is
-local DEATH_CYCLE_LEN = 10 * FRAME_LEN -- how many frames long each munch cycle is
-
+local DEATH_CYCLE_LEN = 10 * FRAME_LEN 
 local INIT_X = 192
 local INIT_Y = 228
 
@@ -122,7 +121,9 @@ function Player:update()
 	if #collisions > 0 then
 		local food = table.remove(collisions)
 		food:hit(false)
-		self:die()
+		if not debugPlayerInvincible then
+			self:die()
+		end
 	end
 
 	-- don't accellerate past max velocity
@@ -135,7 +136,7 @@ function Player:update()
 		self.velocity.x = 0
 		-- runImageIndex = 1
 	elseif abs(self.velocity.x) < 140 then
-		self.animationIndex = self.animationIndex + 0.25
+		self.animationIndex = self.animationIndex + 0.5
 	else
 		self.animationIndex = self.animationIndex + 1
 	end
@@ -178,12 +179,21 @@ end
 
 -- sets the appropriate sprite image for Player based on the current conditions
 function Player:updateImage()
+	local ai = floor(self.animationIndex)
+	if math.abs(self.velocity.x) > 0 then
+		if ai == 1 then
+			SFX:play(SFX.kWalk)
+		end
+		if ai == 2 then
+			SFX:play(SFX.kWalk2)
+		end
+	end
 	if self.tongue then
 		self:setImage(self.playerImages:getImage(CATCH), self.flip)
 	elseif self.dead then 
-		self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
+		self:setImage(self.playerImages:getImage(ai), self.flip)
 	else
-		self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
+		self:setImage(self.playerImages:getImage(ai), self.flip)
 	end
 end
 
@@ -217,6 +227,7 @@ function Player:runRight()
 end
 
 function Player:die()
+	SFX:play(SFX.kPlayerDie)
 	self.dead = true
 	if BAGEL_MODE then
 		self.velocity = vector2D.new(0,0)

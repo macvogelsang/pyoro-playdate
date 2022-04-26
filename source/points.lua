@@ -2,8 +2,9 @@ class('Points').extends(playdate.graphics.sprite)
 
 local imgTable = playdate.graphics.imagetable.new('img/scores')
 local FLASH_FRAMES = 3
+local OFFSET_DELAY = 0.05 * REFRESH_RATE -- time in seconds to offset points popping 
 
-function Points:init(value, position, flashing)
+function Points:init(value, position, flashing, offset)
     Points.super.init(self) 
     self.flashing = flashing
     self.value = value
@@ -20,24 +21,39 @@ function Points:init(value, position, flashing)
         imgY = 5
     end
 
+    self.startFrame = offset and (offset - 1) * OFFSET_DELAY or 0
+    self.frame = 1
     self.lifespan = REFRESH_RATE * 0.5
+    self.playedSound = false
 
     self:setImage(imgTable:getImage(1, imgY))
     self:setCenter(0.5, 0.5)
     self:moveTo(position)
 	self:setZIndex(960)
     self:add()
+    self:setVisible(false)
 end
 
 function Points:update()
-    if (self.value >= 300 or self.flashing) and self.lifespan % FLASH_FRAMES == 0 then
-        self:setImage(self:getImage():invertedImage())
-    end
+    self.frame += 1
+    if self.frame >= self.startFrame then
 
-    self.lifespan -= 1
+        self:setVisible(true)
+        
+        if self.flashing and not self.playedSound then
+            SFX:play(SFX.kPoints50, true)
+            self.playedSound = true
+        end
 
-    if self.lifespan <= 0 then
-        self:remove()
-        self = nil
+        if (self.value >= 300 or self.flashing) and self.lifespan % FLASH_FRAMES == 0 then
+            self:setImage(self:getImage():invertedImage())
+        end
+
+        self.lifespan -= 1
+
+        if self.lifespan <= 0 then
+            self:remove()
+            self = nil
+        end
     end
 end

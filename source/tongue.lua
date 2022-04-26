@@ -47,6 +47,8 @@ function Tongue:init(x, y, direction)
 	
 	self:setVisible(false)
 	self:add()
+
+	SFX:play(SFX.kTongueOut)
 end
 
 
@@ -113,6 +115,8 @@ end
 
 function Tongue:retract() 
 	if not self.retracting then
+		SFX:stop(SFX.kTongueOut)
+		SFX:play(SFX.kTongueRetract)
 		self.velocity = self.velocity * RETRACT_MULTIPLIER
 		self.retracting = true
 		self:clearCollideRect()
