@@ -6,20 +6,19 @@ import "CoreLibs/timer"
 import "constants"
 import "util"
 import 'score'
-import "player"
 import "tongue"
 import 'level'
+import 'gameover'
 
 globalScore = Score()
-player = Player()
-level = Level()
+local level = Level()
+local gameover = nil
 
 local function initialize()
 
     math.randomseed(playdate.getSecondsSinceEpoch())
     playdate.display.setRefreshRate(REFRESH_RATE)
 
-    globalScore:add()
 
     -- printTable(background)
 end
@@ -29,6 +28,16 @@ initialize()
 function playdate.update() 
     gfx.sprite.update()
     playdate.timer.updateTimers()
+
+    if level.player.dead and not gameover then
+        gameover = GameOver()
+    end
+    if gameover and gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
+        gfx.sprite.removeAll()
+        globalScore = Score()
+        level = Level()
+        gameover = nil
+    end
 end
 
 function playdate.debugDraw()

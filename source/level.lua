@@ -1,3 +1,4 @@
+import 'player'
 import 'food'
 import 'block'
 import 'angel'
@@ -63,7 +64,10 @@ function Level:init()
     Level.super.init(self)
 
     self:add()
-    player:add()
+    self.player = Player()
+    self.player:add()
+    globalScore:add()
+
     self:setStageData(globalScore.stage)
 
     gfx.sprite.setBackgroundDrawingCallback(
@@ -125,27 +129,27 @@ function Level:update()
     end    
     
     -- move player and adjust its bounds
-    player:moveTo(player.position)
+    self.player:moveTo(self.player.position)
     if doBoundCalculation then
         local left, right = self:getDirectionalDistsToPlayer()
         if #left > 0 then
             local leftBlock = self.blocks[left[1].blockIndex]
-            player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET + 1
+            self.player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET + 1
         else
-            player:resetMinXPosition()
+            self.player:resetMinXPosition()
         end
         if # right > 0 then
             local rightBlock = self.blocks[right[1].blockIndex]
-            player.maxXPosition = rightBlock.x - PLAYER_OVERHANG_OFFSET
+            self.player.maxXPosition = rightBlock.x - PLAYER_OVERHANG_OFFSET
         else
-            player:resetMaxXPosition()
+            self.player:resetMaxXPosition()
         end
         doBoundCalculation = false
     end
 
     -- check for food
-    if player:hasTongue() and player.tongue:hasFood() then
-        local food = player.tongue.food
+    if self.player:hasTongue() and self.player.tongue:hasFood() then
+        local food = self.player.tongue.food
         local points = self:calcPoints(food.capturedPosition.y)
         globalScore:addPoints(points)
         Points(points, food.capturedPosition, food.type==CLEAR)
@@ -153,6 +157,7 @@ function Level:update()
         if not food.scored then
             -- handle heal and clear foods
             if food.type == HEAL then
+                -- repair one block
                 local dists = self:getAbsoluteDistsToPlayer()
                 if #dists > 0 then
                     local block = self.blocks[dists[1].blockIndex]
@@ -217,7 +222,7 @@ function Level:getDirectionalDistsToPlayer()
     local nearRight = {} -- hold positive distances
     for i, b in ipairs(self.blocks) do
         if not b.placed then
-            local dist = b.xCenter - player.position.x
+            local dist = b.xCenter - self.player.position.x
             if dist < 0 then
                 table.insert(nearLeft, {dist = dist, blockIndex = i})
             else
@@ -235,7 +240,7 @@ function Level:getAbsoluteDistsToPlayer()
 
     for i, b in ipairs(self.blocks) do
         if not b.placed then
-            local dist = math.abs(b.xCenter - player.position.x)
+            local dist = math.abs(b.xCenter - self.player.position.x)
             table.insert(dists, {dist = dist, blockIndex = i})
         end
     end

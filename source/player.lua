@@ -17,6 +17,7 @@ local GROUND_FRICTION = 0.8
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
 local MUNCH_TIME_SEC = 0.5
 local MUNCH_CYCLE_LEN = 6 * FRAME_LEN -- how many frames long each munch cycle is
+local DEATH_CYCLE_LEN = 10 * FRAME_LEN -- how many frames long each munch cycle is
 
 local INIT_X = 192
 local INIT_Y = 228
@@ -94,19 +95,20 @@ function Player:update()
 		self.animationIndex = 1
 	end
 
-	if playdate.buttonIsPressed("left") and not self.tongue then
+	-- set control events
+	if playdate.buttonIsPressed("left") and not self.tongue and not self.dead then
 		self:runLeft()
-	elseif playdate.buttonIsPressed("right") and not self.tongue then
+	elseif playdate.buttonIsPressed("right") and not self.tongue and not self.dead then
 		self:runRight()
 	end
 
-	if playdate.buttonJustPressed(playdate.kButtonA) and not self.tongue then
+	if playdate.buttonJustPressed(playdate.kButtonA) and not self.tongue and not self.dead then
 		self.velocity.x = 0
 		self.tongueOut = true
 		self.tongue = Tongue(self.position.x, self.position.y - 4, self.facing)
 	end
 
-	if playdate.buttonJustReleased(playdate.kButtonA) and self.tongue then
+	if playdate.buttonJustReleased(playdate.kButtonA) and self.tongue and not self.dead then
 		self.tongue:retract()
 	end
 
@@ -119,6 +121,14 @@ function Player:update()
 		MAX_RUN_VELOCITY = 120
 	else
 		MAX_RUN_VELOCITY = 80
+	end
+
+	-- collision check
+	local collisions = self:overlappingSprites()
+	if #collisions > 0 then
+		local food = table.remove(collisions)
+		food:stop()
+		self:die()
 	end
 
 	-- don't accellerate past max velocity
@@ -136,7 +146,7 @@ function Player:update()
 		self.animationIndex = self.animationIndex + 1
 	end
 
-	if not self.munching then
+	if not self.munching and not self.dead then
 		self.frame = 1
 		if self.animationIndex > 2.5 then self.animationIndex = 1 end
 	else
@@ -144,7 +154,15 @@ function Player:update()
 		if self.frame > REFRESH_RATE * MUNCH_TIME_SEC then
 			self.munching = false
 		end
-		self.animationIndex = (self.frame % MUNCH_CYCLE_LEN) < MUNCH_CYCLE_LEN/2 and 1 or 4
+
+		if self.munching then
+			local animateState = (self.frame % MUNCH_CYCLE_LEN) < MUNCH_CYCLE_LEN/2 
+			self.animationIndex = animateState and 1 or 4
+		end
+		if self.dead then
+			local animateState = (self.frame % DEATH_CYCLE_LEN) < DEATH_CYCLE_LEN/2 
+			self.animationIndex = animateState and 5 or 6
+		end
 	end
 		
 	-- update Player position based on current velocity
@@ -168,12 +186,10 @@ end
 function Player:updateImage()
 	if self.tongue then
 		self:setImage(self.playerImages:getImage(CATCH), self.flip)
+	elseif self.dead then 
+		self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
 	else
-		if self.velocity.x == 0 then
-			self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
-		else
-			self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
-		end
+		self:setImage(self.playerImages:getImage(floor(self.animationIndex)), self.flip)
 	end
 end
 
@@ -195,4 +211,9 @@ function Player:runRight()
 	self.velocity.x = min(self.velocity.x + RUN_VELOCITY, MAX_VELOCITY)
 	self.munching = false
 	self:setCollideRect(3,3,18,16)
+end
+
+function Player:die()
+	self.dead = true
+	self.velocity = vector2D.new(0,0)
 end
