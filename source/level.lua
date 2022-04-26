@@ -83,6 +83,7 @@ function Level:init()
     self.firstClear = false
 
     self:setBlocks()
+    -- self.foodTimer = 0
     self:resetFoodTimer()
 end
 
@@ -189,7 +190,7 @@ function Level:update()
 
     self:setStageData(globalScore.stage)
 
-    if self.stage == 6 and not self.firstClear then
+    if self.stage == 5 and not self.firstClear then
         self.firstClear = true
         self:spawnFood(CLEAR)
     end

@@ -9,13 +9,14 @@ local vector2D = playdate.geometry.vector2D
 -- constants
 local FOOD_WIDTH = 20
 local FALL_VELOCITY = {SLOW=40, MED=60, FAST=100} 
-
+local ANIMATION_SEQ = {1, 2, 3, 4, 3, 2}
+local FRAME_DUR = 0.1 * REFRESH_RATE 
 -- local variables - these are "class local" but since we only have one tongue this isn't a problem
 local minXPosition = X_LOWER_BOUND + FOOD_WIDTH/2
 local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2 
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local foodTable = playdate.graphics.imagetable.new('img/seed')
+local foodTable = playdate.graphics.imagetable.new('img/bagel')
 
 function Food:init(foodType, speed, blockRef)
 	
@@ -23,7 +24,8 @@ function Food:init(foodType, speed, blockRef)
 
 	self.type = foodType
 	self.speed = FALL_VELOCITY[speed]
-	self.frame = math.random(40)
+	self.frame = 1
+	self.animationIndex = 1 --math.random(#ANIMATION_SEQ)
 	self.imgRow = foodType 
 	self.blockRef = blockRef
 
@@ -95,21 +97,24 @@ function Food:update()
 	self:moveTo(self.position)
 	self:updateImage()
 
-	self.frame = self.frame + 1
-	if self.frame > 40 then
-		self.frame = 1
+	if self.frame % 3 == 0 then 
+		self.animationIndex += 1
+		if self.animationIndex > 6 then
+			self.animationIndex = 1
+		end
 	end
+	self.frame += 1
 
 end
 
 function Food:updateImage() 
 	if not self.captured then
-		local imgCol = math.ceil(self.frame / 10)
+		-- local imgCol = ANIMATION_SEQ[self.animationIndex] 
+		print(self.animationIndex, imgCol)
 		if self.type == 3 then
 			self.imgRow = self.frame % 8 < 4 and 1 or 2
 		end
-		if imgCol == 4 then imgCol = 2  end
-		self:setImage(foodTable:getImage(imgCol, self.imgRow))
+		self:setImage(foodTable:getImage(self.animationIndex, self.imgRow))
 	else
 		self:setImage(foodTable:getImage(1, self.imgRow))
 	end
