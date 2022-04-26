@@ -22,13 +22,7 @@ local DEATH_CYCLE_LEN = 10 * FRAME_LEN -- how many frames long each munch cycle 
 local INIT_X = 192
 local INIT_Y = 228
 
--- timer used for player jumps
-local jumpTimer = playdate.frameTimer.new(5, 45, 45, playdate.easingFunctions.outQuad)
-jumpTimer:pause()
-jumpTimer.discardOnCompletion = false
-
 -- local variables - these are "class local" but since we only have one player this isn't a problem
-
 local playerWidth = 19
 local LEFT_WALL = X_LOWER_BOUND + playerWidth/2 
 local RIGHT_WALL = X_UPPER_BOUND - playerWidth/2
@@ -41,7 +35,7 @@ function Player:init()
 	
 	Player.super.init(self)
 
-	self.playerImages = playdate.graphics.imagetable.new('img/beagle')
+	self.playerImages = BAGEL_MODE and gfx.imagetable.new('img/beagle') or gfx.imagetable.new('img/player')
 	self:setImage(self.playerImages:getImage(1))
 	self:setZIndex(1000)
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
@@ -202,7 +196,11 @@ function Player:runLeft()
 	self.flip = gfx.kImageUnflipped
 	self.velocity.x = max(self.velocity.x - RUN_VELOCITY, -MAX_VELOCITY)
 	self.munching = false
-	self:setCollideRect(2,3,18,16)
+	if BAGEL_MODE then
+		self:setCollideRect(2,3,18,16)
+	else
+		self:setCollideRect(1,1,18,18)
+	end
 end
 
 function Player:runRight()
@@ -211,9 +209,18 @@ function Player:runRight()
 	self.velocity.x = min(self.velocity.x + RUN_VELOCITY, MAX_VELOCITY)
 	self.munching = false
 	self:setCollideRect(3,3,18,16)
+	if BAGEL_MODE then
+		self:setCollideRect(3,3,18,16)
+	else
+		self:setCollideRect(1,1,18,18)
+	end
 end
 
 function Player:die()
 	self.dead = true
-	self.velocity = vector2D.new(0,0)
+	if BAGEL_MODE then
+		self.velocity = vector2D.new(0,0)
+	else
+		self.velocity =vector2D.new(0, 30)
+	end
 end

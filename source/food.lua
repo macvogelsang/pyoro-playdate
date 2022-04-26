@@ -9,14 +9,14 @@ local vector2D = playdate.geometry.vector2D
 -- constants
 local FOOD_WIDTH = 20
 local FALL_VELOCITY = {SLOW=40, MED=60, FAST=100} 
-local ANIMATION_SEQ = {1, 2, 3, 4, 3, 2}
-local FRAME_DUR = 0.1 * REFRESH_RATE 
--- local variables - these are "class local" but since we only have one tongue this isn't a problem
+local FRAME_DUR = BAGEL_MODE and REFRESH_RATE // 10 or REFRESH_RATE // 3
+local NUM_FRAMES = BAGEL_MODE and 6 or 4
+
 local minXPosition = X_LOWER_BOUND + FOOD_WIDTH/2
 local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2 
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local foodTable = playdate.graphics.imagetable.new('img/bagel')
+local foodTable = BAGEL_MODE and playdate.graphics.imagetable.new('img/bagel') or playdate.graphics.imagetable.new('img/seed') 
 
 function Food:init(foodType, speed, blockRef)
 	
@@ -47,9 +47,6 @@ function Food:init(foodType, speed, blockRef)
 	self.capturedPosition = nil
 	self.scored = false
 	self.endPosition = Point.new(0,0) 
-
-	-- determine the block this food is aligned with and set x
-    -- local x = ((self.blockIndex * BLOCK_WIDTH) - 4) + X_LOWER_BOUND
 
 	self.position = Point.new(self.blockRef.xCenter + 1, 0)
 	self.velocity = vector2D.new(0, self.speed)
@@ -97,9 +94,9 @@ function Food:update()
 	self:moveTo(self.position)
 	self:updateImage()
 
-	if self.frame % 3 == 0 then 
+	if self.frame % FRAME_DUR == 0 then 
 		self.animationIndex += 1
-		if self.animationIndex > 6 then
+		if self.animationIndex > NUM_FRAMES then
 			self.animationIndex = 1
 		end
 	end
@@ -109,8 +106,6 @@ end
 
 function Food:updateImage() 
 	if not self.captured then
-		-- local imgCol = ANIMATION_SEQ[self.animationIndex] 
-		print(self.animationIndex, imgCol)
 		if self.type == 3 then
 			self.imgRow = self.frame % 8 < 4 and 1 or 2
 		end

@@ -17,6 +17,8 @@ DT =  1/30
 
 COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP, COLLIDE_BLOCK_GROUP = 1, 2, 3
 
+BAGEL_MODE = false 
+
 gfx = playdate.graphics
 
 --[[
