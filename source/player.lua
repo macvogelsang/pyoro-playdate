@@ -16,7 +16,7 @@ local SPEED_OF_RUNNING = 50			-- thea velocity at which we decide the player is 
 local GROUND_FRICTION = 0.8
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
 local MUNCH_TIME_SEC = 0.5
-local MUNCH_SPEED = 6 -- how many long is each munch cycle
+local MUNCH_CYCLE_LEN = 6 * FRAME_LEN -- how many frames long each munch cycle is
 
 local INIT_X = 192
 local INIT_Y = 228
@@ -40,12 +40,11 @@ function Player:init()
 	
 	Player.super.init(self)
 
-	self.playerImages = playdate.graphics.imagetable.new('img/player')
+	self.playerImages = playdate.graphics.imagetable.new('img/beagle')
 	self:setImage(self.playerImages:getImage(1))
 	self:setZIndex(1000)
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
 	self:moveTo(INIT_X, INIT_Y)
-	self:setCollideRect(1,1,20,16)
 	self:setGroups({COLLIDE_PLAYER_GROUP})
 	
 	self.collisionResponse = gfx.sprite.kCollisionTypeOverlap
@@ -104,7 +103,7 @@ function Player:update()
 	if playdate.buttonJustPressed(playdate.kButtonA) and not self.tongue then
 		self.velocity.x = 0
 		self.tongueOut = true
-		self.tongue = Tongue(self.position.x, self.position.y - 3, self.facing)
+		self.tongue = Tongue(self.position.x, self.position.y - 4, self.facing)
 	end
 
 	if playdate.buttonJustReleased(playdate.kButtonA) and self.tongue then
@@ -132,7 +131,7 @@ function Player:update()
 		self.velocity.x = 0
 		-- runImageIndex = 1
 	elseif abs(self.velocity.x) < 140 then
-		self.animationIndex = self.animationIndex + 0.5
+		self.animationIndex = self.animationIndex + 0.25
 	else
 		self.animationIndex = self.animationIndex + 1
 	end
@@ -145,7 +144,7 @@ function Player:update()
 		if self.frame > REFRESH_RATE * MUNCH_TIME_SEC then
 			self.munching = false
 		end
-		self.animationIndex = (self.frame % MUNCH_SPEED) < MUNCH_SPEED/2 and 1 or 4
+		self.animationIndex = (self.frame % MUNCH_CYCLE_LEN) < MUNCH_CYCLE_LEN/2 and 1 or 4
 	end
 		
 	-- update Player position based on current velocity
@@ -187,6 +186,7 @@ function Player:runLeft()
 	self.flip = gfx.kImageUnflipped
 	self.velocity.x = max(self.velocity.x - RUN_VELOCITY, -MAX_VELOCITY)
 	self.munching = false
+	self:setCollideRect(2,3,18,16)
 end
 
 function Player:runRight()
@@ -194,4 +194,5 @@ function Player:runRight()
 	self.flip = gfx.kImageFlippedX
 	self.velocity.x = min(self.velocity.x + RUN_VELOCITY, MAX_VELOCITY)
 	self.munching = false
+	self:setCollideRect(3,3,18,16)
 end

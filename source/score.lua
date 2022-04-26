@@ -7,6 +7,8 @@ function Score:init()
 	Score.super.init(self)
 
 	self.score = 0
+    self.stage = 0
+
     self.highScore = 10000
 	self:setZIndex(900)
 	self:setIgnoresDrawOffset(true)
@@ -18,6 +20,8 @@ end
 function Score:addPoints(points)
 	self.score += points
 	self:markDirty()
+
+    self.stage = math.floor(self.score / 1000) 
 end
 
 function Score:draw()

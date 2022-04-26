@@ -7,17 +7,19 @@ local vector2D = playdate.geometry.vector2D
 
 -- constants
 local FOOD_WIDTH = 20
-local FALL_VELOCITY = 300 
+local FALL_VELOCITY = 360 
 local DOWN, UP = 1, 2
+local FLASH_CYCLE_LEN = 4 * FRAME_LEN
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local imgTable = playdate.graphics.imagetable.new('img/angel')
 
-function Angel:init(block)
+function Angel:init(block, offset)
 	
 	Angel.super.init(self)
 
 	self.speed = FALL_VELOCITY
+	self.spawnOffset = offset and offset * 5 * FRAME_LEN or 1
 	self.frame = 1
 	self.block = block
 
@@ -33,6 +35,7 @@ function Angel:init(block)
 
 	self:moveTo(self.position)
 	self:add()
+	
 end
 
 function Angel:reverse()
@@ -43,17 +46,18 @@ function Angel:reverse()
 end
 
 function Angel:update()
+	if self.frame >= self.spawnOffset then
+		local velocityStep = self.velocity * DT 
+		self.position = self.position + velocityStep
+		
+		-- don't move outside the walls of the game
+		if self.position.y >= 238 then
+			self:reverse()
+		end
 
-	local velocityStep = self.velocity * DT 
-	self.position = self.position + velocityStep
-	
-	-- don't move outside the walls of the game
-	if self.position.y >= 238 then
-		self:reverse()
+		self:moveTo(self.position)
+		self:updateImage()
 	end
-
-	self:moveTo(self.position)
-	self:updateImage()
 
 	self.frame = self.frame + 1
 
@@ -65,7 +69,7 @@ function Angel:update()
 end
 
 function Angel:updateImage() 
-	local imgCol = (self.frame % 4) < 2 and 1 or 2 
+	local imgCol = (self.frame % FLASH_CYCLE_LEN) < FLASH_CYCLE_LEN/2 and 1 or 2 
 	self:setImage(imgTable:getImage(imgCol, self.state))
 end
 

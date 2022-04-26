@@ -3,9 +3,9 @@ class('Points').extends(playdate.graphics.sprite)
 local imgTable = playdate.graphics.imagetable.new('img/scores')
 local FLASH_FRAMES = 3
 
-function Points:init(value, position)
+function Points:init(value, position, flashing)
     Points.super.init(self) 
-
+    self.flashing = flashing
     self.value = value
     local imgY = 1
     if self.value == 10 then
@@ -30,7 +30,7 @@ function Points:init(value, position)
 end
 
 function Points:update()
-    if self.value >= 300 and self.lifespan % FLASH_FRAMES == 0 then
+    if (self.value >= 300 or self.flashing) and self.lifespan % FLASH_FRAMES == 0 then
         self:setImage(self:getImage():invertedImage())
     end
 

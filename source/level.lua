@@ -2,27 +2,69 @@ import 'food'
 import 'block'
 import 'angel'
 import 'points'
-import 'score'
 
 class('Level').extends(playdate.graphics.sprite)
 
 -- Time in seconds between seed spawns
-local FOOD_TIMERS = {2, 1.8, 1.6, 1.4, 1.2}
 local NORMAL, HEAL, CLEAR = 1, 2, 3
-local PLAYER_OVERHANG_OFFSET = 2
+local PLAYER_OVERHANG_OFFSET = 4
+local ALL_STAGE_DATA = {
+    {
+        minStage = 0,
+        foodTimer = 2,
+        spawnDist = {0.9, 0.1, 0}
+    },
+    {
+        minStage = 1,
+        foodTimer = 1,
+        spawnDist = {0.9, 0.1, 0}
+    },
+    {
+        minStage = 2,
+        foodTimer = 0.8,
+        spawnDist = {0.9, 0.1, 0}
+    },
+    {
+        minStage = 3,
+        foodTimer = 0.6,
+        spawnDist = {0.9, 0.1, 0}
+    },
+    {
+        minStage = 4,
+        foodTimer = 0.5,
+        spawnDist = {0.9, 0.1, 0}
+    },
+    {
+        minStage = 5,
+        foodTimer = 0.4,
+        spawnDist = {0.8, 0.15, 0.05}
+    },
+    {
+        minStage = 10,
+        foodTimer = 0.35,
+        spawnDist = {0.7, 0.20, 0.10}
+    },
+    {
+        minStage = 20,
+        foodTimer = 0.3,
+        spawnDist = {0.7, 0.15, 0.15}
+    },
+    {
+        minStage = 30,
+        foodTimer = 0.2,
+        spawnDist = {0.6, 0.10, 0.30}
+    }
+}
 
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false
-globalScore = Score()
 
 function Level:init()
     Level.super.init(self)
 
     self:add()
     player:add()
-    globalScore:add()
-
-    self.stage = 1
+    self:setStageData(globalScore.stage)
 
     gfx.sprite.setBackgroundDrawingCallback(
         function( x, y, width, height )
@@ -34,14 +76,25 @@ function Level:init()
 
     self.blocks = {}
     self.activeFood = {}
+    self.firstClear = false
 
     self:setBlocks()
     self:resetFoodTimer()
-
 end
 
 function Level:resetFoodTimer()
-    self.seedTimer = FOOD_TIMERS[self.stage] * REFRESH_RATE
+    self.foodTimer = self.stageData.foodTimer * REFRESH_RATE
+end
+
+function Level:setStageData(stage)
+    self.stage = stage
+    local dataIndex = 1
+    for i, data in ipairs(ALL_STAGE_DATA) do 
+        if self.stage >= data.minStage then
+            dataIndex = i
+        end
+    end
+    self.stageData = ALL_STAGE_DATA[dataIndex]
 end
 
 function Level:setBlocks()
@@ -53,8 +106,8 @@ function Level:setBlocks()
 end
 
 function Level:update()
-    self.seedTimer = self.seedTimer - 1 
-    if self.seedTimer == 0 then
+    self.foodTimer = self.foodTimer - 1 
+    if self.foodTimer <= 0 then
         self:spawnFood()
         self:resetFoodTimer()
     end
@@ -77,7 +130,7 @@ function Level:update()
         local left, right = self:getDirectionalDistsToPlayer()
         if #left > 0 then
             local leftBlock = self.blocks[left[1].blockIndex]
-            player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET
+            player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET + 1
         else
             player:resetMinXPosition()
         end
@@ -93,12 +146,11 @@ function Level:update()
     -- check for food
     if player:hasTongue() and player.tongue:hasFood() then
         local food = player.tongue.food
+        local points = self:calcPoints(food.capturedPosition.y)
+        globalScore:addPoints(points)
+        Points(points, food.capturedPosition, food.type==CLEAR)
 
         if not food.scored then
-            local points = self:calcPoints(food.capturedPosition.y)
-            globalScore:addPoints(points)
-            Points(points, food.capturedPosition)
-
             -- handle heal and clear foods
             if food.type == HEAL then
                 local dists = self:getAbsoluteDistsToPlayer()
@@ -107,20 +159,54 @@ function Level:update()
                     Angel(block)
                 end
             end
-            
+            if food.type == CLEAR then
+                -- spawn up to 10 angels
+                local dists = self:getAbsoluteDistsToPlayer()
+                for i = 1, 10 do
+                    if dists[i] then
+                        local block = self.blocks[dists[i].blockIndex]
+                        Angel(block, i)
+                    end
+                end
+
+                -- clear all food
+                for i, f in ipairs(self.activeFood) do 
+                    f.scored = true
+                    f:stop(false)
+                    globalScore:addPoints(50)
+                    Points(50, f.position, true)
+                end
+            end
+
             food.scored = true
         end
     end
+
+    self:setStageData(globalScore.stage)
+
+    if self.stage == 6 and not self.firstClear then
+        self.firstClear = true
+        self:spawnFood(CLEAR)
+    end
 end
 
-function Level:spawnFood()
+function Level:spawnFood(type)
     local speed = 'SLOW' 
     if math.random() < 0.2 then
         speed = 'MED'
     end
-    local type = NORMAL
-    if math.random() < 0.5 then
-        type = HEAL
+
+    if type == nil then
+        local randy = math.random()
+        local checkNorm = self.stageData.spawnDist[NORMAL] -- cumulative change that a seed will spawn
+        local checkHeal = self.stageData.spawnDist[HEAL] + checkNorm
+        if randy < checkNorm then 
+            type = NORMAL
+        elseif randy < checkHeal  then
+            type = HEAL
+        else
+            type = CLEAR
+        end
     end
 
     table.insert(self.activeFood, Food(type, speed))

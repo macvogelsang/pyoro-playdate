@@ -4,7 +4,8 @@
     "import",
     "playdate",
     "doBoundCalculation",
-    "globalScore"
+    "globalScore",
+    "debugHarmlessFoodOn"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"

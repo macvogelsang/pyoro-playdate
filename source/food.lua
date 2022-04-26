@@ -16,14 +16,17 @@ local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local foodTable = playdate.graphics.imagetable.new('img/seed')
 
-function Food:init(type, speed)
+function Food:init(foodType, speed)
 	
 	Food.super.init(self)
 
-	self.type = type
+	self.type = foodType
 	self.speed = FALL_VELOCITY[speed]
 	self.frame = 1
-	self.imgRow = self.type
+	self.imgRow = foodType 
+	if self.imgRow > 2 then
+		self.imgRow = 2
+	end
 
 	self:setImage(foodTable:getImage(1, self.imgRow))
 
@@ -31,6 +34,9 @@ function Food:init(type, speed)
 	self:setCenter(0.5, 0.5)	
 	self:setCollideRect(4,1,12,18)
 	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
+	if debugHarmlessFoodOn then
+		self:setCollidesWithGroups({COLLIDE_TONGUE_GROUP})
+	end
 
 	self.captured = false 
 	self.capturedPosition = nil
@@ -60,6 +66,9 @@ end
 function Food:stop(hitGround)
 	self.velocity = vector2D.new(0, 0) 
 	self.hitGround = hitGround
+	if debugHarmlessFoodOn then
+		self.hitGround = false
+	end
 	self.delete = true
 	self:remove()
 end
@@ -91,6 +100,9 @@ end
 function Food:updateImage() 
 	if not self.captured then
 		local imgCol = math.ceil(self.frame / 10)
+		if self.type == 3 then
+			self.imgRow = self.frame % 8 < 4 and 1 or 2
+		end
 		if imgCol == 4 then imgCol = 2  end
 		self:setImage(foodTable:getImage(imgCol, self.imgRow))
 	else
