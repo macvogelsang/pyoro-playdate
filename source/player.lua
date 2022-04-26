@@ -127,7 +127,7 @@ function Player:update()
 	local collisions = self:overlappingSprites()
 	if #collisions > 0 then
 		local food = table.remove(collisions)
-		food:stop()
+		food:hit(false)
 		self:die()
 	end
 

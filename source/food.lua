@@ -1,3 +1,4 @@
+import 'dust'
 
 class('Food').extends(playdate.graphics.sprite)
 
@@ -16,14 +17,16 @@ local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local foodTable = playdate.graphics.imagetable.new('img/seed')
 
-function Food:init(foodType, speed)
+function Food:init(foodType, speed, blockRef)
 	
 	Food.super.init(self)
 
 	self.type = foodType
 	self.speed = FALL_VELOCITY[speed]
-	self.frame = 1
+	self.frame = math.random(40)
 	self.imgRow = foodType 
+	self.blockRef = blockRef
+
 	if self.imgRow > 2 then
 		self.imgRow = 2
 	end
@@ -44,10 +47,9 @@ function Food:init(foodType, speed)
 	self.endPosition = Point.new(0,0) 
 
 	-- determine the block this food is aligned with and set x
-	self.blockIndex = math.random(NUM_BLOCKS)
-    local x = ((self.blockIndex * BLOCK_WIDTH) - 4) + X_LOWER_BOUND
+    -- local x = ((self.blockIndex * BLOCK_WIDTH) - 4) + X_LOWER_BOUND
 
-	self.position = Point.new(x, 0)
+	self.position = Point.new(self.blockRef.xCenter + 1, 0)
 	self.velocity = vector2D.new(0, self.speed)
 
 	self:moveTo(self.position)
@@ -63,12 +65,14 @@ function Food:capture(endPosition)
 	self:clearCollideRect()
 end
 
-function Food:stop(hitGround)
+function Food:hit(ground)
+	self.hitGround = debugHarmlessFoodOn and true or ground 
+	Dust(self.position)	
+	self:cleanup()
+end
+
+function Food:cleanup()
 	self.velocity = vector2D.new(0, 0) 
-	self.hitGround = hitGround
-	if debugHarmlessFoodOn then
-		self.hitGround = false
-	end
 	self.delete = true
 	self:remove()
 end
@@ -78,13 +82,14 @@ function Food:update()
 	local velocityStep = self.velocity * DT 
 	self.position = self.position + velocityStep
 	
-	-- don't move outside the walls of the game
-	if self.position.y >= 229 then
-		self:stop(true)
+	-- made it to ground level
+	if self.position.y >= 229 and not self.captured and self.blockRef.placed then
+		self:hit(true)
 	end
 
-	if self.captured and (self.position.y >= self.endPosition.y - 10) then
-		self:stop(false)
+	if (self.captured and (self.position.y >= self.endPosition.y - 10)) or 
+		self.position.y >= 250 then
+		self:cleanup()
 	end
 
 	self:moveTo(self.position)

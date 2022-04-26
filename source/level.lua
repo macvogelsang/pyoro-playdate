@@ -120,8 +120,8 @@ function Level:update()
     for i = #self.activeFood, 1, -1 do
         local food = self.activeFood[i]
         if food.hitGround then
-             self.blocks[food.blockIndex]:destroy()
-             doBoundCalculation = true
+            food.blockRef:destroy()
+            doBoundCalculation = true
         end
         if food.delete then
             table.remove(self.activeFood, i)
@@ -177,7 +177,7 @@ function Level:update()
                 -- clear all food
                 for i, f in ipairs(self.activeFood) do 
                     f.scored = true
-                    f:stop(false)
+                    f:hit()
                     globalScore:addPoints(50)
                     Points(50, f.position, true)
                 end
@@ -214,7 +214,8 @@ function Level:spawnFood(type)
         end
     end
 
-    table.insert(self.activeFood, Food(type, speed))
+    -- spawn a new food over a random block
+    table.insert(self.activeFood, Food(type, speed, self.blocks[math.random(NUM_BLOCKS)]))
 end
 
 function Level:getDirectionalDistsToPlayer()

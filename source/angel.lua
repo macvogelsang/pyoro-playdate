@@ -6,7 +6,6 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local FOOD_WIDTH = 20
 local FALL_VELOCITY = 360 
 local DOWN, UP = 1, 2
 local FLASH_CYCLE_LEN = 4 * FRAME_LEN
