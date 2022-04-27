@@ -18,7 +18,7 @@ function GameOver:init()
 	self:setSize(82, 10)
 
 	self.position = Point.new(200, 0)
-	self.velocity = vector2D.new(0, 100)
+	self.velocity = vector2D.new(0, 60)
 
     self:add()
 end

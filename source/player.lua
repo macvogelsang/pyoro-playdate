@@ -227,7 +227,7 @@ function Player:runRight()
 end
 
 function Player:die()
-	SFX:play(SFX.kPlayerDie)
+	BGM:play(BGM.kPlayerDie)
 	self.dead = true
 	if BAGEL_MODE then
 		self.velocity = vector2D.new(0,0)

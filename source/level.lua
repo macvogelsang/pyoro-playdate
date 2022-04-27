@@ -67,7 +67,7 @@ function Level:init()
     self.player = Player()
     self.player:add()
     globalScore:add()
-
+    BGM:play(BGM.kNormal)
     self:setStageData(globalScore.stage)
 
     gfx.sprite.setBackgroundDrawingCallback(
@@ -80,6 +80,7 @@ function Level:init()
 
     self.blocks = {}
     self.activeFood = {}
+    self.stageStates =  {}
     self.firstClear = false
 
     self:setBlocks()
@@ -190,10 +191,29 @@ function Level:update()
 
     self:setStageData(globalScore.stage)
 
-    if self.stage == 5 and not self.firstClear then
-        self.firstClear = true
+    if self:reachedStage(5) then
         self:spawnFood(CLEAR)
+        BGM:addLayer(1)
     end
+
+    if self:reachedStage(10) then
+        BGM:addLayer(2)
+    end
+
+    if self:reachedStage(20) then
+        BGM:play(BGM.kSepia)
+    end
+
+    if self:reachedStage(30) then
+        BGM:play(BGM.kMonochromeIntro)
+        BGM:addLayer(1)
+    end
+
+    if self:reachedStage(50) then
+        BGM:addLayer(2)
+    end
+
+    
 end
 
 function Level:spawnFood(type)
@@ -262,4 +282,15 @@ function Level:calcPoints(y)
     else
         return 1000
     end
+end
+
+function Level:reachedStage(stage)
+    -- true if we are at this stage but it hasn't been logged in states yet
+    local unsetStageReached = self.stageStates[stage] == nil and self.stage == stage
+    if unsetStageReached then
+        -- log this state
+        self.stageStates[stage] = true
+        print('reached stage ', stage)
+    end
+    return unsetStageReached
 end

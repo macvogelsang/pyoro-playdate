@@ -5,6 +5,7 @@ import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import "constants"
 import 'sfx'
+import 'bgm'
 import "util"
 import 'score'
 import "tongue"
@@ -36,6 +37,7 @@ function playdate.update()
     if gameover and gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
         gfx.sprite.removeAll()
         globalScore = Score()
+        BGM:stopAll()
         level = Level()
         gameover = nil
     end
@@ -60,5 +62,8 @@ function playdate.keyReleased(key)
     elseif key == 'i' then
         debugPlayerInvincible = not debugPlayerInvincible
         print('player invincible: ', debugPlayerInvincible)
+    elseif key == 'n' then
+        -- skip near the end of the current track(s)
+        BGM:skipToLoopEnd()
     end
 end

@@ -27,6 +27,7 @@ See you later!
 Take a break!
 Better luck next time.
 Ouch!
+Hang in there!
 
 
 ]]--
