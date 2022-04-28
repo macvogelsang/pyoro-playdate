@@ -3,13 +3,13 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
-import "constants"
+import 'constants'
+import 'util'
 import 'sfx'
 import 'bgm'
-import "util"
+import 'level'
 import 'score'
 import "tongue"
-import 'level'
 import 'gameover'
 
 globalScore = Score()

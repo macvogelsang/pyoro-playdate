@@ -24,7 +24,7 @@ function Tongue:init(x, y, direction)
 
 	self.direction = direction
 	self:setImage(tongueImages:getImage(1), self.direction == RIGHT and gfx.kImageFlippedX or gfx.kImageUnflipped)
-	self:setZIndex(900)
+	self:setZIndex(LAYERS.tongue)
 	self:setCenter(0.5, 0.5)	
 	self:moveTo(x, y)
 	self:setCollideRect(1,1,12,12)
@@ -128,7 +128,7 @@ function Tongue:drawSegment()
 		local segment = gfx.sprite.new()
 		segment:setImage(tongueImages:getImage(2), self.direction == RIGHT and gfx.kImageFlippedX or gfx.kImageUnflipped)
 		segment:moveTo(self.position.x, self.position.y)
-		segment:setZIndex(890)
+		segment:setZIndex(LAYERS.tongue - 1)
 		segment:add()
 		table.insert(self.segments, segment)
 	end

@@ -29,7 +29,7 @@ function Points:init(value, position, flashing, offset)
     self:setImage(imgTable:getImage(1, imgY))
     self:setCenter(0.5, 0.5)
     self:moveTo(position)
-	self:setZIndex(960)
+	self:setZIndex(LAYERS.points)
     self:add()
     self:setVisible(false)
 end
@@ -39,7 +39,7 @@ function Points:update()
     if self.frame >= self.startFrame then
 
         self:setVisible(true)
-        
+
         if self.flashing and not self.playedSound then
             SFX:play(SFX.kPoints50, true)
             self.playedSound = true

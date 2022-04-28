@@ -30,7 +30,7 @@ function Angel:init(block, offset)
 
 	self:setImage(imgTable:getImage(1, self.state))
 
-	self:setZIndex(750)
+	self:setZIndex(LAYERS.angel)
 	self:setCenter(0.5, 1)	
 
 	self.position = Point.new(block.xCenter, -20)

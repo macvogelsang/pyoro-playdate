@@ -10,7 +10,7 @@ function Score:init()
     self.stage = 0
 
     self.highScore = 10000
-	self:setZIndex(900)
+	self:setZIndex(LAYERS.text)
 	self:setIgnoresDrawOffset(true)
 	self:setCenter(0.5, 0)
 	self:setSize(240, 20)

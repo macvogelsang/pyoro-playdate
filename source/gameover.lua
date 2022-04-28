@@ -12,7 +12,7 @@ function GameOver:init()
     self.timer = 4 * REFRESH_RATE
     self.ready = false
 
-	self:setZIndex(1100)
+	self:setZIndex(LAYERS.text)
 	self:setIgnoresDrawOffset(true)
 	self:setCenter(0.5, 0.5)
 	self:setSize(82, 10)

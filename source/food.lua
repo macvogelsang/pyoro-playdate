@@ -35,7 +35,7 @@ function Food:init(foodType, speed, blockRef)
 
 	self:setImage(foodTable:getImage(1, self.imgRow))
 
-	self:setZIndex(800)
+	self:setZIndex(LAYERS.food)
 	self:setCenter(0.5, 0.5)	
 	self:setCollideRect(4,1,12,18)
 	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})

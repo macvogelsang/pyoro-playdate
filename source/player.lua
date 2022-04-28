@@ -36,7 +36,7 @@ function Player:init()
 
 	self.playerImages = BAGEL_MODE and gfx.imagetable.new('img/beagle') or gfx.imagetable.new('img/player')
 	self:setImage(self.playerImages:getImage(1))
-	self:setZIndex(1000)
+	self:setZIndex(LAYERS.player)
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
 	self:moveTo(INIT_X, INIT_Y)
 	self:setGroups({COLLIDE_PLAYER_GROUP})

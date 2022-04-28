@@ -56,6 +56,19 @@ local ALL_STAGE_DATA = {
         spawnDist = {0.6, 0.10, 0.30}
     }
 }
+LAYERS = enum({
+    'frame',
+    'sky',
+    'buildings',
+    'hills',
+    'block',
+    'angel',
+    'food',
+    'tongue',
+    'points',
+    'player',
+    'text'
+})
 
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false
@@ -63,7 +76,6 @@ doBoundCalculation = false
 function Level:init()
     Level.super.init(self)
 
-    self:add()
     self.player = Player()
     self.player:add()
     globalScore:add()
@@ -86,6 +98,8 @@ function Level:init()
     self:setBlocks()
     -- self.foodTimer = 0
     self:resetFoodTimer()
+
+    self:add()
 end
 
 function Level:resetFoodTimer()
