@@ -10,6 +10,7 @@ function Dust:init(position)
     self.lifespan = LIFESPAN 
     self:setImage(imgTable:getImage(1))
     self:moveTo(position)
+    self:setZIndex(LAYERS.dust)
     self:add()
 end
 

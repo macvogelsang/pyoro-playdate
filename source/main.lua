@@ -7,6 +7,8 @@ import 'constants'
 import 'util'
 import 'sfx'
 import 'bgm'
+import 'bgscene'
+import 'stagecontrol'
 import 'level'
 import 'score'
 import "tongue"
@@ -41,10 +43,11 @@ function playdate.update()
         level = Level()
         gameover = nil
     end
+    playdate.drawFPS(0,0)
 end
 
 function playdate.debugDraw()
-    playdate.drawFPS(0,0)
+    -- playdate.drawFPS(0,0)
 end
 
 debugHarmlessFoodOn = false

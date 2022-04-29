@@ -8,6 +8,7 @@ function Block:init(i)
     self.xPos = blockIndexToX(self.blockIndex) 
     self.xCenter = self.xPos + BLOCK_WIDTH/2
     self:setCenter(0,0)
+    self:setZIndex(LAYERS.block)
     self:place()
     self:add()
 end

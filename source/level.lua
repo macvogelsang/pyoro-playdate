@@ -9,59 +9,13 @@ class('Level').extends(playdate.graphics.sprite)
 -- Time in seconds between seed spawns
 local NORMAL, HEAL, CLEAR = 1, 2, 3
 local PLAYER_OVERHANG_OFFSET = 4
-local ALL_STAGE_DATA = {
-    {
-        minStage = 0,
-        foodTimer = 2,
-        spawnDist = {0.9, 0.1, 0}
-    },
-    {
-        minStage = 1,
-        foodTimer = 1,
-        spawnDist = {0.9, 0.1, 0}
-    },
-    {
-        minStage = 2,
-        foodTimer = 0.8,
-        spawnDist = {0.9, 0.1, 0}
-    },
-    {
-        minStage = 3,
-        foodTimer = 0.6,
-        spawnDist = {0.9, 0.1, 0}
-    },
-    {
-        minStage = 4,
-        foodTimer = 0.5,
-        spawnDist = {0.9, 0.1, 0}
-    },
-    {
-        minStage = 5,
-        foodTimer = 0.4,
-        spawnDist = {0.8, 0.15, 0.05}
-    },
-    {
-        minStage = 10,
-        foodTimer = 0.35,
-        spawnDist = {0.7, 0.20, 0.10}
-    },
-    {
-        minStage = 20,
-        foodTimer = 0.3,
-        spawnDist = {0.7, 0.15, 0.15}
-    },
-    {
-        minStage = 30,
-        foodTimer = 0.2,
-        spawnDist = {0.6, 0.10, 0.30}
-    }
-}
 LAYERS = enum({
-    'frame',
     'sky',
     'buildings',
     'hills',
+    'frame',
     'block',
+    'dust',
     'angel',
     'food',
     'tongue',
@@ -80,19 +34,12 @@ function Level:init()
     self.player:add()
     globalScore:add()
     BGM:play(BGM.kNormal)
-    self:setStageData(globalScore.stage)
 
-    gfx.sprite.setBackgroundDrawingCallback(
-        function( x, y, width, height )
-            gfx.setClipRect( x, y, width, height ) 
-            bgImg:draw( 0, 0 )
-            gfx.clearClipRect() 
-        end
-    )
-
+    self.scene = BGScene()
+    self.stageController = StageController()
+    self.stageData = self.stageController.stageData
     self.blocks = {}
     self.activeFood = {}
-    self.stageStates =  {}
     self.firstClear = false
 
     self:setBlocks()
@@ -203,30 +150,12 @@ function Level:update()
         end
     end
 
-    self:setStageData(globalScore.stage)
-
-    if self:reachedStage(5) then
+    local spawnFood = self.stageController:update(self.scene)
+    self.stageData = self.stageController.stageData
+    while spawnFood > 0 do
         self:spawnFood(CLEAR)
-        BGM:addLayer(1)
+        spawnFood -= 1
     end
-
-    if self:reachedStage(10) then
-        BGM:addLayer(2)
-    end
-
-    if self:reachedStage(20) then
-        BGM:play(BGM.kSepia)
-    end
-
-    if self:reachedStage(30) then
-        BGM:play(BGM.kMonochromeIntro)
-        BGM:addLayer(1)
-    end
-
-    if self:reachedStage(50) then
-        BGM:addLayer(2)
-    end
-
     
 end
 
@@ -238,14 +167,12 @@ function Level:spawnFood(type)
 
     if type == nil then
         local randy = math.random()
-        local checkNorm = self.stageData.spawnDist[NORMAL] -- cumulative change that a seed will spawn
-        local checkHeal = self.stageData.spawnDist[HEAL] + checkNorm
-        if randy < checkNorm then 
+        -- local checkNorm = self.stageData.spawnDist[NORMAL] -- cumulative change that a seed will spawn
+        -- local checkHeal = self.stageData.spawnDist[HEAL] + checkNorm
+        if randy < 0.9 then 
             type = NORMAL
-        elseif randy < checkHeal  then
-            type = HEAL
         else
-            type = CLEAR
+            type = HEAL
         end
     end
 
@@ -298,13 +225,3 @@ function Level:calcPoints(y)
     end
 end
 
-function Level:reachedStage(stage)
-    -- true if we are at this stage but it hasn't been logged in states yet
-    local unsetStageReached = self.stageStates[stage] == nil and self.stage == stage
-    if unsetStageReached then
-        -- log this state
-        self.stageStates[stage] = true
-        print('reached stage ', stage)
-    end
-    return unsetStageReached
-end

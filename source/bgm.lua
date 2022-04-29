@@ -39,7 +39,9 @@ BGM.kMainMenu = {
 	name = 'main_menu'
 }
 BGM.kGameOver = {
-	name = 'game_over'
+	name = 'game_over',
+	nextSong = 'none'
+
 }
 BGM.kGameOver2 = {
 	name = 'game_over2'
@@ -52,7 +54,7 @@ BGM.kPlayerDie = {
 
 local function playSongAfter(fp, nextSongKey) 
 	-- Ignore this play if the song was stopped prematurely for any reason (aka by stopAll)
-	if fp:getOffset() < fp:getLength() then
+	if fp:getOffset() < fp:getLength() or nextSongKey == 'none' then
 		return
 	end
 
