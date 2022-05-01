@@ -17,6 +17,9 @@ local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local foodTable = BAGEL_MODE and playdate.graphics.imagetable.new('img/bagel') or playdate.graphics.imagetable.new('img/seed') 
+local foodOutlineTable = playdate.graphics.imagetable.new('img/seed-outline') 
+
+local spawn_monochrome = false
 
 function Food:init(foodType, speed, blockRef)
 	
@@ -26,6 +29,7 @@ function Food:init(foodType, speed, blockRef)
 	self.speed = FALL_VELOCITY[speed]
 	self.frame = 1
 	self.animationIndex = 1 --math.random(#ANIMATION_SEQ)
+	self.imgTable = spawn_monochrome and foodOutlineTable or foodTable
 	self.imgRow = foodType 
 	self.blockRef = blockRef
 
@@ -33,7 +37,7 @@ function Food:init(foodType, speed, blockRef)
 		self.imgRow = 2
 	end
 
-	self:setImage(foodTable:getImage(1, self.imgRow))
+	self:setImage(self.imgTable:getImage(1, self.imgRow))
 
 	self:setZIndex(LAYERS.food)
 	self:setCenter(0.5, 0.5)	
@@ -103,6 +107,12 @@ function Food:update()
 	end
 	self.frame += 1
 
+	GameState:subscribe('monochrome', self, function(is_monochrome)
+        if is_monochrome then
+            self.imgTable = foodOutlineTable
+			spawn_monochrome = true
+        end
+    end)
 end
 
 function Food:updateImage() 
@@ -110,9 +120,9 @@ function Food:updateImage()
 		if self.type == 3 then
 			self.imgRow = self.frame % 8 < 4 and 1 or 2
 		end
-		self:setImage(foodTable:getImage(self.animationIndex, self.imgRow))
+		self:setImage(self.imgTable:getImage(self.animationIndex, self.imgRow))
 	else
-		self:setImage(foodTable:getImage(1, self.imgRow))
+		self:setImage(self.imgTable:getImage(1, self.imgRow))
 	end
 end
 

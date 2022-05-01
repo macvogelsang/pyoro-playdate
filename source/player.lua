@@ -28,19 +28,20 @@ local RIGHT_WALL = X_UPPER_BOUND - playerWidth/2
 
 local RUN_VELOCITY = 14 
 local MAX_RUN_VELOCITY = 240
-
+local COLOR, MONO = 1, 2
 
 function Player:init()
 	
 	Player.super.init(self)
 
 	self.playerImages = BAGEL_MODE and gfx.imagetable.new('img/beagle') or gfx.imagetable.new('img/player')
-	self:setImage(self.playerImages:getImage(1))
+	self:setImage(self.playerImages:getImage(1,1))
 	self:setZIndex(LAYERS.player)
 	self:setCenter(0.5, 1)	-- set center point to center bottom middle
 	self:moveTo(INIT_X, INIT_Y)
 	self:setGroups({COLLIDE_PLAYER_GROUP})
 	
+	self.color = COLOR
 	self.collisionResponse = gfx.sprite.kCollisionTypeOverlap
 	self.animationIndex = 1
 	self.frame = 1
@@ -173,6 +174,12 @@ function Player:update()
 		self.position.x = self.maxXPosition
 	end
 	
+	GameState:subscribe("monochrome", self, function(is_monochrome)
+		if is_monochrome then	
+			self.color = MONO
+		end
+	end)
+	
 	self:updateImage()
 
 end
@@ -189,11 +196,11 @@ function Player:updateImage()
 		end
 	end
 	if self.tongue then
-		self:setImage(self.playerImages:getImage(CATCH), self.flip)
+		self:setImage(self.playerImages:getImage(CATCH, self.color), self.flip)
 	elseif self.dead then 
-		self:setImage(self.playerImages:getImage(ai), self.flip)
+		self:setImage(self.playerImages:getImage(ai, self.color), self.flip)
 	else
-		self:setImage(self.playerImages:getImage(ai), self.flip)
+		self:setImage(self.playerImages:getImage(ai, self.color), self.flip)
 	end
 end
 

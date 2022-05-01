@@ -156,6 +156,14 @@ function Level:update()
         self:spawnFood(CLEAR)
         spawnFood -= 1
     end
+
+    GameState:subscribe('monochrome', self, function(is_monochrome)
+        if is_monochrome then
+            for i, block in ipairs(self.blocks) do
+                block:monochrome()
+            end
+        end
+    end)
     
 end
 

@@ -1,6 +1,7 @@
 class('Block').extends(playdate.graphics.sprite)
 
-local blockImg = playdate.graphics.image.new('img/block')
+local blockImg = gfx.image.new('img/block')
+local blockOutlineImg = gfx.image.new('img/block-outline')
 
 function Block:init(i)
     Block.super.init(self)
@@ -9,6 +10,7 @@ function Block:init(i)
     self.xCenter = self.xPos + BLOCK_WIDTH/2
     self:setCenter(0,0)
     self:setZIndex(LAYERS.block)
+    self:setImage(blockImg)
     self:place()
     self:add()
 end
@@ -16,7 +18,6 @@ end
 -- places the block at the bottom of the screen and sets its image
 function Block:place()
     self.placed = true
-    self:setImage(blockImg)
     self:setVisible(true)
     self:moveTo(self.xPos, 229)
     doBoundCalculation = true
@@ -27,4 +28,8 @@ function Block:destroy()
     SFX:play(SFX.kTileDestroy, true)
     self:setVisible(false)
     self.placed = false
+end
+
+function Block:monochrome()
+    self:setImage(blockOutlineImg)
 end

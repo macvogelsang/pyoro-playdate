@@ -126,6 +126,7 @@ function StageController:update(scene)
         BGM:play(BGM.kMonochromeIntro)
         BGM:addLayer(1)
         scene:monochrome()
+        GameState:notify("monochrome", true)
     end
 
     if self:reachedStage(40) then

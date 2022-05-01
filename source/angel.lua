@@ -12,9 +12,12 @@ local FLASH_CYCLE_LEN = 4 * FRAME_LEN
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local imgTable = playdate.graphics.imagetable.new('img/angel')
+local imgOutlineTable = playdate.graphics.imagetable.new('img/angel-outline')
 
 local OFFSET_DELAY = 0.3 * REFRESH_RATE -- time in seconds to offset angel falling
 local RESTORE_SEQ = {1,2,3,4,5,4,5,4,5,4}
+
+local spawn_monochrome = false
 
 function Angel:init(block, offset)
 	
@@ -24,6 +27,7 @@ function Angel:init(block, offset)
 	self.offset = offset or 1
 	self.startFrame = offset and (offset - 1) * OFFSET_DELAY or 1
 	self.frame = 1
+	self.imgTable = spawn_monochrome and imgOutlineTable or imgTable
 	self.block = block
 
 	self.state = DOWN
@@ -76,11 +80,18 @@ function Angel:update()
 		self = nil
 	end
 
+	GameState:subscribe('monochrome', self, function(is_monochrome)
+        if is_monochrome then
+            self.imgTable = imgOutlineTable
+			spawn_monochrome = true
+        end
+    end)
+
 end
 
 function Angel:updateImage() 
 	local imgCol = (self.frame % FLASH_CYCLE_LEN) < FLASH_CYCLE_LEN/2 and 1 or 2 
-	self:setImage(imgTable:getImage(imgCol, self.state))
+	self:setImage(self.imgTable:getImage(imgCol, self.state))
 end
 
 

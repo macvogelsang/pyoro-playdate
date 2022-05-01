@@ -5,6 +5,7 @@ import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import 'constants'
 import 'util'
+import 'signal'
 import 'sfx'
 import 'bgm'
 import 'bgscene'
@@ -14,9 +15,11 @@ import 'score'
 import "tongue"
 import 'gameover'
 
+
 globalScore = Score()
 local level = Level()
 local gameover = nil
+GameState = Signal()
 
 local function initialize()
 
