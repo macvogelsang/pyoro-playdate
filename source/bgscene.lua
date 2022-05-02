@@ -37,6 +37,8 @@ function BGScene:monochrome()
     self.buildings:monochrome()
 end
 
+local BUILDING_FADE_IN_FRAMES = 20
+local BUILDING_FADE_STEP = 1/BUILDING_FADE_IN_FRAMES
 
 function Buildings:init()
     Buildings.super.init(self)
@@ -53,6 +55,7 @@ function Buildings:init()
 
     self.frame = 1
     self.drawBlank = false
+ 
 end
 
 function Buildings:addBuilding(bld)
@@ -60,6 +63,8 @@ function Buildings:addBuilding(bld)
     bld.file = gfx.image.new('img/scene/' .. bld.name)
     table.insert(self.images, bld)
     self:markDirty()
+    self.fadeInVal = 0 + BUILDING_FADE_STEP
+
 end
 
 function Buildings:removeBuilding(bld)
@@ -81,7 +86,15 @@ function Buildings:draw()
     gfx.setImageDrawMode(self.drawMode)
     for i = #self.images, 1, -1 do
         local bld = self.images[i]
-        bld.file:draw(bld.x, bld.y)
+        if i == #self.images then
+            bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, gfx.image.kDitherTypeBayer2x2)
+            if self.fadeInVal < 1 then
+                -- self:markDirty()
+                self.fadeInVal += BUILDING_FADE_STEP
+            end
+        else
+            bld.file:draw(bld.x, bld.y)
+        end
     end
 end
 

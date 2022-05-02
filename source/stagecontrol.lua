@@ -12,51 +12,77 @@ BLD.kMoon = {name = '10_moon',x = 216,y = 71 }
 BLD.kPlanet = {name = '11_planet',x = 52,y = 7 }
 BLD.kCity = {name = '12_city',x = 262,y = 8}
 BLD.kLights = {name = 'lights',x = 0,y = 0}
-ALL_STAGE_DATA = {
+
+-- hard-coded function that determines how the current stage (index) affects the food timer (value)
+STAGE_FOOD_TIMER_FUNC = {2, 1, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, 0.25}-- 12
+
+-- fall speed distributions of food
+
+FOOD_PARAM_FUNC = {
+    -- time stage 0 and 1 
+    STARTING_FOOD_PARAMS,
+    -- time stage 2
     {
-        minStage = 0,
-        foodTimer = 2,
+        slow = {chance=0.6, speed=33},
+        med = {chance=0.4, speed=43},
+        fast = {chance=0, speed=0},
     },
+    -- time stage 3
     {
-        minStage = 1,
-        foodTimer = 1,
+        slow = {chance=0.4, speed=33},
+        med = {chance=0.3, speed=43},
+        fast = {chance=0.3, speed=55},
     },
+    -- time stage 4
     {
-        minStage = 2,
-        foodTimer = 0.8,
+        slow = {chance=0.5, speed=43},
+        med = {chance=0.5, speed=55},
+        fast = {chance=0, speed=0},
     },
+    -- time stage 5
     {
-        minStage = 3,
-        foodTimer = 0.6,
+        slow = {chance=0.3, speed=43},
+        med = {chance=0.35, speed=55},
+        fast = {chance=0.35, speed=65},
     },
+    -- time stage 6
     {
-        minStage = 4,
-        foodTimer = 0.5,
+        slow = {chance=0.35, speed=55},
+        med = {chance=0.35, speed=65},
+        fast = {chance=0.30, speed=80},
     },
+    -- time stage 7
     {
-        minStage = 5,
-        foodTimer = 0.4,
+        slow = {chance=0.30, speed=55},
+        med = {chance=0.30, speed=65},
+        fast = {chance=0.40, speed=80},
     },
+    -- time stage 8
     {
-        minStage = 10,
-        foodTimer = 0.35,
-    },
-    {
-        minStage = 20,
-        foodTimer = 0.3,
-    },
-    {
-        minStage = 30,
-        foodTimer = 0.2,
+        slow = {chance=0.35, speed=65},
+        med = {chance=0.35, speed=80},
+        fast = {chance=0.30, speed=95},
     }
 }
-
+-- average time in seconds between food spawn
+STARTING_FOOD_TIMER = 2
+-- seconds between each time based stage increase
+STAGE_TIME_INTERVAL = 20
+-- time stage before stage_timer kicks in
+STAGE_TIME = 2
 
 function StageController:init()
     StageController.super.init(self)
     self.stage = 0
     self.prevStage = 0
     self.stageLog =  {}
+    self.stageTimeSeconds = 0
+    self.timeStage = 0
+    self.prevTimeStage = 0
+
+    self.foodTimer = STARTING_FOOD_TIMER
+    self.foodParams = STARTING_FOOD_PARAMS
+
     self:setStageData(globalScore.stage)
 end
 
@@ -137,10 +163,18 @@ function StageController:update(scene)
         BGM:addLayer(2)
     end
 
-    if self.stage ~= self.prevStage and self.stage > 9 then
-        spawnFoodCount += 1
+    if self.stage ~= self.prevStage then
+        self:recalculateFoodParams(false)
+        if self.stage > 9 then
+            spawnFoodCount += 1
+        end
     end
-    return spawnFoodCount
+
+    if self.timeStage ~= self.prevTimeStage and self.timeStage >= 2 then
+        self:recalculateFoodParams(true)
+    end
+    self.stageTimeSeconds += 1/REFRESH_RATE
+    return spawnFoodCount, self.foodTimer, self.foodParams
 end
 
 function StageController:reachedStage(stage)
@@ -157,12 +191,36 @@ end
 function StageController:setStageData(stage)
     self.prevStage = self.stage
     self.stage = stage
-    local dataIndex = 1
-    for i, data in ipairs(ALL_STAGE_DATA) do 
-        if self.stage >= data.minStage then
-            dataIndex = i
-        end
+
+    local timeStage = self.stageTimeSeconds // STAGE_TIME_INTERVAL
+    self.prevTimeStage = self.timeStage
+    self.timeStage = timeStage
+end
+
+-- use stage and timeStage to determine food spawn rate and fall speed
+function StageController:recalculateFoodParams(newTimeStage)
+    -- food timers
+    local timeBasedFt = 1.91 * math.exp(-0.02 * self.stageTimeSeconds + 0.0366) + 0.65
+    local stageBasedFt = 2
+    if self.stage + 1 > #STAGE_FOOD_TIMER_FUNC then
+        stageBasedFt = STAGE_FOOD_TIMER_FUNC[#STAGE_FOOD_TIMER_FUNC]
+    else
+        stageBasedFt = STAGE_FOOD_TIMER_FUNC[self.stage + 1]
     end
-    self.stageData = ALL_STAGE_DATA[dataIndex]
-    return self.stageData
+    print(timeBasedFt, stageBasedFt)
+    self.foodTimer = math.min(timeBasedFt, stageBasedFt) 
+
+    if newTimeStage then
+        -- fall speed is only based on time (for now)
+        if self.timeStage <= #FOOD_PARAM_FUNC then
+            self.foodParams = FOOD_PARAM_FUNC[self.timeStage]
+        else
+            self.foodParams = FOOD_PARAM_FUNC[#FOOD_PARAM_FUNC]
+        end
+        print('reached time stage', self.timeStage)
+    else
+        print('reached stage', self.stage)
+    end
+
+
 end

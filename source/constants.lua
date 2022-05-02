@@ -17,6 +17,12 @@ DT =  1/30
 
 COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP, COLLIDE_BLOCK_GROUP = 1, 2, 3
 
+STARTING_FOOD_PARAMS = {
+    slow = {chance=0.7, speed=25},
+    med = {chance=0.3, speed=33},
+    fast = {chance=0, speed=0},
+}
+
 BAGEL_MODE = false 
 
 

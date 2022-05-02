@@ -26,7 +26,7 @@ function Food:init(foodType, speed, blockRef)
 	Food.super.init(self)
 
 	self.type = foodType
-	self.speed = FALL_VELOCITY[speed]
+	self.speed = speed 
 	self.frame = 1
 	self.animationIndex = 1 --math.random(#ANIMATION_SEQ)
 	self.imgTable = spawn_monochrome and foodOutlineTable or foodTable

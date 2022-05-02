@@ -26,7 +26,7 @@ local function initialize()
     math.randomseed(playdate.getSecondsSinceEpoch())
     playdate.display.setRefreshRate(REFRESH_RATE)
 
-
+    gfx.sprite.setAlwaysRedraw(true)
     -- printTable(background)
 end
 
@@ -62,6 +62,7 @@ function playdate.keyReleased(key)
     if numkey then
         local points = numkey * 1000
         globalScore:addPoints(points)
+        level.stageController.stageTimeSeconds += 20 * numkey
     elseif key == 'h' then
         debugHarmlessFoodOn = not debugHarmlessFoodOn
         print('harmless food: ', debugHarmlessFoodOn)

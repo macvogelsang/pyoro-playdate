@@ -27,6 +27,9 @@ LAYERS = enum({
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false
 
+-- wait time before food spawns again after clearing all
+local CLEAR_ALL_RESET_TIMER = 2
+
 function Level:init()
     Level.super.init(self)
 
@@ -37,10 +40,11 @@ function Level:init()
 
     self.scene = BGScene()
     self.stageController = StageController()
-    self.stageData = self.stageController.stageData
     self.blocks = {}
     self.activeFood = {}
     self.firstClear = false
+    self.foodTimerInitial = 4
+    self.foodParams = STARTING_FOOD_PARAMS 
 
     self:setBlocks()
     -- self.foodTimer = 0
@@ -50,18 +54,7 @@ function Level:init()
 end
 
 function Level:resetFoodTimer()
-    self.foodTimer = self.stageData.foodTimer * REFRESH_RATE
-end
-
-function Level:setStageData(stage)
-    self.stage = stage
-    local dataIndex = 1
-    for i, data in ipairs(ALL_STAGE_DATA) do 
-        if self.stage >= data.minStage then
-            dataIndex = i
-        end
-    end
-    self.stageData = ALL_STAGE_DATA[dataIndex]
+    self.foodTimer = self.foodTimerInitial * REFRESH_RATE
 end
 
 function Level:setBlocks()
@@ -75,8 +68,8 @@ end
 function Level:update()
     self.foodTimer = self.foodTimer - 1 
     if self.foodTimer <= 0 then
-        self:spawnFood()
         self:resetFoodTimer()
+        self:spawnFood()
     end
 
     -- check active food for collisions and such
@@ -113,11 +106,12 @@ function Level:update()
     -- check for food
     if self.player:hasTongue() and self.player.tongue:hasFood() then
         local food = self.player.tongue.food
-        local points = self:calcPoints(food.capturedPosition.y)
-        globalScore:addPoints(points)
-        Points(points, food.capturedPosition, food.type==CLEAR)
 
         if not food.scored then
+            -- score the food
+            local points = self:calcPoints(food.capturedPosition.y)
+            globalScore:addPoints(points)
+            Points(points, food.capturedPosition, food.type==CLEAR)
             -- handle heal and clear foods
             if food.type == HEAL then
                 -- repair one block
@@ -144,14 +138,17 @@ function Level:update()
                     globalScore:addPoints(50)
                     Points(50, f.position, true, i)
                 end
+
+                self.foodTimer = CLEAR_ALL_RESET_TIMER * REFRESH_RATE
             end
 
             food.scored = true
         end
     end
 
-    local spawnFood = self.stageController:update(self.scene)
-    self.stageData = self.stageController.stageData
+    local spawnFood = 0
+    spawnFood, self.foodTimerInitial, self.foodParams = self.stageController:update(self.scene)
+
     while spawnFood > 0 do
         self:spawnFood(CLEAR)
         spawnFood -= 1
@@ -168,21 +165,27 @@ function Level:update()
 end
 
 function Level:spawnFood(type)
-    local speed = 'SLOW' 
-    if math.random() < 0.2 then
-        speed = 'MED'
+    local speed = nil
+    local randy = math.random()
+    local checkSlow = self.foodParams.slow.chance 
+    local checkMed = self.foodParams.med.chance + checkSlow
+    if randy < checkSlow then
+        speed = self.foodParams.slow.speed 
+    elseif randy < checkMed then
+        speed = self.foodParams.med.speed
+    else
+        speed = self.foodParams.fast.speed
     end
 
     if type == nil then
         local randy = math.random()
-        -- local checkNorm = self.stageData.spawnDist[NORMAL] -- cumulative change that a seed will spawn
-        -- local checkHeal = self.stageData.spawnDist[HEAL] + checkNorm
         if randy < 0.9 then 
             type = NORMAL
         else
             type = HEAL
         end
     end
+    
 
     -- spawn a new food over a random block
     table.insert(self.activeFood, Food(type, speed, self.blocks[math.random(NUM_BLOCKS)]))
