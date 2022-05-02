@@ -17,9 +17,9 @@ import 'gameover'
 
 
 globalScore = Score()
+GameState = Signal()
 local level = Level()
 local gameover = nil
-GameState = Signal()
 
 local function initialize()
 
@@ -42,6 +42,9 @@ function playdate.update()
     if gameover and gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
         gfx.sprite.removeAll()
         globalScore = Score()
+        level:endLevel()
+        GameState:notify("monochrome", false)
+        GameState = Signal()
         BGM:stopAll()
         level = Level()
         gameover = nil

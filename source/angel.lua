@@ -44,6 +44,13 @@ function Angel:init(block, offset)
 	self:add()
 
 	self.playedSound = false	
+
+	self.monochromeFn = GameState:subscribe('monochrome', self, function(angel, is_monochrome)
+        if is_monochrome then
+            angel.imgTable = imgOutlineTable
+			spawn_monochrome = true
+		end
+    end)
 end
 
 function Angel:reverse()
@@ -77,15 +84,11 @@ function Angel:update()
 
 	if self.position.y <= -50 then
 		self:remove()
+		GameState:unsubscribe('monochrome', self.monochromeFn)
+		self.imgTable = imgTable
+		spawn_monochrome = false
 		self = nil
 	end
-
-	GameState:subscribe('monochrome', self, function(is_monochrome)
-        if is_monochrome then
-            self.imgTable = imgOutlineTable
-			spawn_monochrome = true
-        end
-    end)
 
 end
 

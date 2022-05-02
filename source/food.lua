@@ -57,6 +57,17 @@ function Food:init(foodType, speed, blockRef)
 
 	self:moveTo(self.position)
 	self:add()
+
+	self.monochromeFn = GameState:subscribe('monochrome', self, function(food, is_monochrome)
+		if is_monochrome then
+			food.imgTable = foodOutlineTable
+			spawn_monochrome = true
+		else
+			food.imgTable = foodTable
+			spawn_monochrome = false
+		end
+
+	end)
 end
 
 
@@ -78,6 +89,7 @@ end
 function Food:cleanup()
 	self.velocity = vector2D.new(0, 0) 
 	self.delete = true
+	GameState:unsubscribe('monochrome', self.monochromeFn)
 	self:remove()
 end
 
@@ -107,12 +119,7 @@ function Food:update()
 	end
 	self.frame += 1
 
-	GameState:subscribe('monochrome', self, function(is_monochrome)
-        if is_monochrome then
-            self.imgTable = foodOutlineTable
-			spawn_monochrome = true
-        end
-    end)
+	
 end
 
 function Food:updateImage() 
@@ -125,5 +132,4 @@ function Food:updateImage()
 		self:setImage(self.imgTable:getImage(1, self.imgRow))
 	end
 end
-
 

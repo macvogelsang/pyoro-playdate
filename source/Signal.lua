@@ -16,6 +16,7 @@ function Signal:subscribe(key, bind, fn)
 	else
 		t[#t + 1] = v
 	end
+	return fn
 end
 
 function Signal:unsubscribe(key, fn)
@@ -38,7 +39,7 @@ function Signal:notify(key, ...)
 	local t = self.listeners[key]
 	if t then
 		for _, v in ipairs(t) do
-			v.fn(v.bind, key, ...)
+			v.fn(v.bind, ...)
 		end
 	end
 end

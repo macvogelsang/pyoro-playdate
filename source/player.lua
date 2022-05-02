@@ -54,6 +54,12 @@ function Player:init()
 
 	self.position = Point.new(INIT_X, INIT_Y)
 	self.velocity = vector2D.new(0,0)
+
+	self.monochromeFn = GameState:subscribe("monochrome", self, function(player, is_monochrome)
+		if is_monochrome then	
+			player.color = MONO
+		end
+	end)
 end
 
 
@@ -174,11 +180,7 @@ function Player:update()
 		self.position.x = self.maxXPosition
 	end
 	
-	GameState:subscribe("monochrome", self, function(is_monochrome)
-		if is_monochrome then	
-			self.color = MONO
-		end
-	end)
+
 	
 	self:updateImage()
 
@@ -236,6 +238,7 @@ end
 function Player:die()
 	BGM:play(BGM.kPlayerDie)
 	self.dead = true
+	GameState:unsubscribe('monochrome', self.monochromeFn)
 	if BAGEL_MODE then
 		self.velocity = vector2D.new(0,0)
 	else
