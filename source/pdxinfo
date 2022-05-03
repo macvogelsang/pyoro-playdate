@@ -1,0 +1,8 @@
+name=Bird & Beans
+author=Mac Vogelsang
+description=A port of the 2009 DSiWare game Bird & Beans 
+bundleID=com.madvogel.bird
+version=0.1.0
+buildNumber=1
+imagePath=system/
+launchSoundPath=sfx/tongue_out

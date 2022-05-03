@@ -7,13 +7,13 @@ BGM.kNormal395 = {
 	name='normal_395', 
 	layers={'normal_395_drums', 'normal_395_organs'}, 
 	vol=1.0,
-	layerVol=0.6
+	layerVol=0.8
 }
 BGM.kNormal = {
 	name='normal', 
 	layers={'normal_drums', 'normal_organs'}, 
 	vol=1.0,
-	layerVol=0.6,
+	layerVol=0.8,
 	nextSong='kNormal395'
 }
 BGM.kNormalShort = {

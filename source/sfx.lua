@@ -22,6 +22,12 @@ SFX.kPoints50 = {'50_1', 0.8}
 
 SFX.kNormal395Transition = {'normal_395_transition'}
 
+SFX.kMenuBack = {'menuback'}
+SFX.kMenuSelect = {'select'}
+SFX.kPause = {'pause'}
+SFX.kUnpause = {'unpause'}
+
+
 local players = {}
 
 for _, v in pairs(SFX) do

@@ -9,20 +9,7 @@ class('Level').extends(playdate.graphics.sprite)
 -- Time in seconds between seed spawns
 local NORMAL, HEAL, CLEAR = 1, 2, 3
 local PLAYER_OVERHANG_OFFSET = 4
-LAYERS = enum({
-    'sky',
-    'buildings',
-    'hills',
-    'frame',
-    'block',
-    'dust',
-    'angel',
-    'food',
-    'tongue',
-    'points',
-    'player',
-    'text'
-})
+
 
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false

@@ -16,3 +16,14 @@ function enum( t )
 
 	return result
 end
+
+function math.ring(a, min, max)
+    if min > max then
+        min, max = max, min
+    end
+    return min + (a-min)%(max-min)
+end
+
+function math.ring_int(a, min, max)
+    return math.ring(a, min, max+1)
+end

@@ -7,6 +7,7 @@ import 'constants'
 import 'util'
 import 'sfx'
 import 'bgm'
+import 'menu'
 import 'bgscene'
 import 'stagecontrol'
 import 'level'
@@ -14,10 +15,27 @@ import 'score'
 import "tongue"
 import 'gameover'
 
+LAYERS = enum({
+    'sky',
+    'buildings',
+    'hills',
+    'frame',
+    'block',
+    'dust',
+    'angel',
+    'food',
+    'tongue',
+    'points',
+    'player',
+    'text',
+    'menu',
+    'cursor'
+})
 
 globalScore = Score()
-local level = Level()
+local level = nil
 local gameover = nil
+local menu = Menu()
 
 local function initialize()
 
@@ -34,16 +52,28 @@ function playdate.update()
     gfx.sprite.update()
     playdate.timer.updateTimers()
 
-    if level.player.dead and not gameover then
-        gameover = GameOver()
+    if menu then
+        if menu.nextScene then
+            level = Level()
+            menu:remove()
+            menu = nil
+        end
     end
-    if gameover and gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
-        gfx.sprite.removeAll()
-        globalScore = Score()
-        level:endLevel()
-        BGM:stopAll()
-        level = Level()
-        gameover = nil
+    if level then
+        if  level.player.dead and not gameover then
+            gameover = GameOver()
+        end
+    end
+    if gameover then
+        if gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
+            gfx.sprite.removeAll()
+            globalScore = Score()
+            level:endLevel()
+            BGM:stopAll()
+            level = nil
+            gameover = nil
+            menu = Menu()
+        end
     end
     playdate.drawFPS(0,0)
 end
