@@ -17,7 +17,7 @@ local imgOutlineTable = playdate.graphics.imagetable.new('img/angel-outline')
 local OFFSET_DELAY = 0.3 * REFRESH_RATE -- time in seconds to offset angel falling
 local RESTORE_SEQ = {1,2,3,4,5,4,5,4,5,4}
 
-local spawn_monochrome = false
+local spawnMonochrome = false
 
 function Angel:init(block, offset)
 	
@@ -27,7 +27,7 @@ function Angel:init(block, offset)
 	self.offset = offset or 1
 	self.startFrame = offset and (offset - 1) * OFFSET_DELAY or 1
 	self.frame = 1
-	self.imgTable = spawn_monochrome and imgOutlineTable or imgTable
+	self.imgTable = spawnMonochrome and imgOutlineTable or imgTable
 	self.block = block
 
 	self.state = DOWN
@@ -44,13 +44,6 @@ function Angel:init(block, offset)
 	self:add()
 
 	self.playedSound = false	
-
-	self.monochromeFn = GameState:subscribe('monochrome', self, function(angel, is_monochrome)
-        if is_monochrome then
-            angel.imgTable = imgOutlineTable
-			spawn_monochrome = true
-		end
-    end)
 end
 
 function Angel:reverse()
@@ -76,6 +69,14 @@ function Angel:update()
 			self:reverse()
 		end
 
+		if globalScore.monochromeMode then
+			self.imgTable = imgOutlineTable
+			spawnMonochrome = true
+		else
+			self.imgTable = imgTable
+			spawnMonochrome = false
+		end
+
 		self:moveTo(self.position)
 		self:updateImage()
 	end
@@ -84,11 +85,10 @@ function Angel:update()
 
 	if self.position.y <= -50 then
 		self:remove()
-		GameState:unsubscribe('monochrome', self.monochromeFn)
 		self.imgTable = imgTable
-		spawn_monochrome = false
 		self = nil
 	end
+
 
 end
 

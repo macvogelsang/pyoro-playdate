@@ -75,9 +75,11 @@ for _, v in pairs(BGM) do
 
 	players[name] = snd.fileplayer.new('bgm/' .. name)
 	players[name]:setVolume(volume)
+	players[name]:setStopOnUnderrun(false)
 	for i, layer in ipairs(layers) do
 		players[layer] = snd.fileplayer.new('bgm/' .. layer)
 		players[layer]:setVolume(0.01)
+		players[layer]:setStopOnUnderrun(false)
 	end
 
 	-- some songs only play once then continue to another track

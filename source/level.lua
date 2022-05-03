@@ -51,14 +51,6 @@ function Level:init()
     self:resetFoodTimer()
 
     self:add()
-
-    self.monochromeFn = GameState:subscribe('monochrome', self, function(level, is_monochrome)
-        if is_monochrome then
-            for i, block in ipairs(level.blocks) do
-                block:monochrome()
-            end
-        end
-    end)
 end
 
 function Level:resetFoodTimer()
@@ -162,8 +154,11 @@ function Level:update()
         spawnFood -= 1
     end
 
-
-    
+    if globalScore.monochromeMode then
+        for i, block in ipairs(self.blocks) do
+            block:monochrome()
+        end 
+    end
 end
 
 function Level:spawnFood(type)
@@ -239,7 +234,6 @@ function Level:calcPoints(y)
 end
 
 function Level:endLevel()
-    GameState:unsubscribe('monochrome', self.monochromeFn)
     self.activeFood = nil
     self.blocks = nil
 end

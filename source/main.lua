@@ -5,7 +5,6 @@ import "CoreLibs/frameTimer"
 import "CoreLibs/timer"
 import 'constants'
 import 'util'
-import 'signal'
 import 'sfx'
 import 'bgm'
 import 'bgscene'
@@ -17,7 +16,6 @@ import 'gameover'
 
 
 globalScore = Score()
-GameState = Signal()
 local level = Level()
 local gameover = nil
 
@@ -43,8 +41,6 @@ function playdate.update()
         gfx.sprite.removeAll()
         globalScore = Score()
         level:endLevel()
-        GameState:notify("monochrome", false)
-        GameState = Signal()
         BGM:stopAll()
         level = Level()
         gameover = nil

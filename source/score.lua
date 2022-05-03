@@ -15,6 +15,8 @@ function Score:init()
 	self:setCenter(0.5, 0)
 	self:setSize(240, 20)
 	self:moveTo(200, 1)
+
+	self.monochromeMode = false
 end
 
 function Score:addPoints(points)

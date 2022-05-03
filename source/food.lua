@@ -19,7 +19,7 @@ local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2
 local foodTable = BAGEL_MODE and playdate.graphics.imagetable.new('img/bagel') or playdate.graphics.imagetable.new('img/seed') 
 local foodOutlineTable = playdate.graphics.imagetable.new('img/seed-outline') 
 
-local spawn_monochrome = false
+local spawnMonochrome = false
 
 function Food:init(foodType, speed, blockRef)
 	
@@ -29,7 +29,7 @@ function Food:init(foodType, speed, blockRef)
 	self.speed = speed 
 	self.frame = 1
 	self.animationIndex = 1 --math.random(#ANIMATION_SEQ)
-	self.imgTable = spawn_monochrome and foodOutlineTable or foodTable
+	self.imgTable = spawnMonochrome and foodOutlineTable or foodTable
 	self.imgRow = foodType 
 	self.blockRef = blockRef
 
@@ -58,16 +58,6 @@ function Food:init(foodType, speed, blockRef)
 	self:moveTo(self.position)
 	self:add()
 
-	self.monochromeFn = GameState:subscribe('monochrome', self, function(food, is_monochrome)
-		if is_monochrome then
-			food.imgTable = foodOutlineTable
-			spawn_monochrome = true
-		else
-			food.imgTable = foodTable
-			spawn_monochrome = false
-		end
-
-	end)
 end
 
 
@@ -89,7 +79,6 @@ end
 function Food:cleanup()
 	self.velocity = vector2D.new(0, 0) 
 	self.delete = true
-	GameState:unsubscribe('monochrome', self.monochromeFn)
 	self:remove()
 end
 
@@ -119,7 +108,13 @@ function Food:update()
 	end
 	self.frame += 1
 
-	
+	if globalScore.monochromeMode then
+		self.imgTable = foodOutlineTable
+		spawnMonochrome = true
+	else
+		self.imgTable = foodTable
+		spawnMonochrome = false
+	end
 end
 
 function Food:updateImage() 
