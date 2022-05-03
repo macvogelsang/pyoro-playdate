@@ -22,8 +22,10 @@ STARTING_FOOD_PARAMS = {
     med = {chance=0.3, speed=33},
     fast = {chance=0, speed=0},
 }
+BNB1, BNB2 = 'bnb1', 'bnb2'
 
 BAGEL_MODE = false 
+
 
 
 

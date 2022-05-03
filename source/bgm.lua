@@ -73,11 +73,11 @@ for _, v in pairs(BGM) do
 	local layers = v.layers or {}
 	local volume = v.vol or 1.0
 
-	players[name] = snd.fileplayer.new('bgm/' .. name)
+	players[name] = snd.fileplayer.new('bgm/' .. name, 0.5)
 	players[name]:setVolume(volume)
 	players[name]:setStopOnUnderrun(false)
 	for i, layer in ipairs(layers) do
-		players[layer] = snd.fileplayer.new('bgm/' .. layer)
+		players[layer] = snd.fileplayer.new('bgm/' .. layer, 0.5)
 		players[layer]:setVolume(0.01)
 		players[layer]:setStopOnUnderrun(false)
 	end

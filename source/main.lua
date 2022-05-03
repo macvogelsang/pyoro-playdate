@@ -32,7 +32,10 @@ LAYERS = enum({
     'cursor'
 })
 
-globalScore = Score()
+globalScore = nil
+game = BNB1
+
+local save = nil
 local level = nil
 local gameover = nil
 local menu = Menu()
@@ -46,6 +49,46 @@ local function initialize()
     -- printTable(background)
 end
 
+local function loadSave() 
+    save = playdate.datastore.read()
+    if not save then
+        save = {
+            bnb1 = 10000,
+            bnb2 = -1
+        }
+        game = BNB1
+    end
+    globalScore.highScore = save[game]
+end
+
+local function writeSave() 
+    local newSave = {}
+    if game == BNB1 then
+        newSave.bnb1 = globalScore.highScore 
+        newSave.bnb2 = save.bnb2
+        
+        -- unlock bird and beans 2
+        if newSave.bn1 >= 10000 and newSave.bnb2 < 0 then
+            newSave.bnb2 = 0
+        end
+    else
+        newSave.bnb1 = save.bnb1
+        newSave.bnb2 = globalScore.highScore
+    end
+
+    playdate.datastore.write(newSave)
+end
+
+local function gameEnd()
+    writeSave()
+    gfx.sprite.removeAll()
+    level:endLevel()
+    BGM:stopAll()
+    level = nil
+    gameover = nil
+    menu = Menu()
+end
+
 initialize()
 
 function playdate.update() 
@@ -54,7 +97,13 @@ function playdate.update()
 
     if menu then
         if menu.nextScene then
+            -- set high score
+            globalScore = Score()
+            game = BNB1
+            loadSave()
+            -- start level
             level = Level()
+            -- remove menu
             menu:remove()
             menu = nil
         end
@@ -66,13 +115,7 @@ function playdate.update()
     end
     if gameover then
         if gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
-            gfx.sprite.removeAll()
-            globalScore = Score()
-            level:endLevel()
-            BGM:stopAll()
-            level = nil
-            gameover = nil
-            menu = Menu()
+            gameEnd()
         end
     end
     playdate.drawFPS(0,0)
@@ -103,3 +146,41 @@ function playdate.keyReleased(key)
         BGM:skipToLoopEnd()
     end
 end
+
+function playdate.gameWillTerminate()
+    writeSave()
+end
+
+function playdate.deviceWillSleep()
+    writeSave()
+end
+
+-- menu items
+local sysMenu = playdate.getSystemMenu()
+
+local gameEndItem, error = sysMenu:addMenuItem("quit game", function()
+    gameEnd()
+end)
+
+local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", false, function(value)
+    debugPlayerInvincible = value
+end)
+
+local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
+    if value == '5k' then
+        globalScore.stage = 5
+        globalScore.score = 5000
+    end
+    if value == '10k' then
+        globalScore.stage = 10
+        globalScore.score = 10000
+    end
+    if value == '30k' then
+        globalScore.stage = 30
+        globalScore.score = 30000
+    end
+    if value == '50k' then
+        globalScore.stage = 50
+        globalScore.score = 50000
+    end
+end)

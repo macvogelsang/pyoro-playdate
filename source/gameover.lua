@@ -1,7 +1,7 @@
 
 class('GameOver').extends(gfx.sprite)
 
-local font = gfx.font.new('img/space-harrier')
+local img = gfx.image.new('img/gameover')
 local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
@@ -15,7 +15,8 @@ function GameOver:init()
 	self:setZIndex(LAYERS.text)
 	self:setIgnoresDrawOffset(true)
 	self:setCenter(0.5, 0.5)
-	self:setSize(82, 10)
+    self:setImage(img)
+    self:setImageDrawMode(gfx.kDrawModeInverted)
 
 	self.position = Point.new(200, 0)
 	self.velocity = vector2D.new(0, 60)
@@ -33,12 +34,3 @@ function GameOver:update()
     end
 end
 
-function GameOver:draw()
-    gfx.setFontTracking(0)
-	gfx.setFont(font)
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(0,0,37,10)
-    gfx.fillRect(45,0,37,10)
-    gfx.setImageDrawMode(gfx.kDrawModeCopy)
-	gfx.drawText("GAME OVER", 1, 1)
-end

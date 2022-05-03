@@ -1,6 +1,6 @@
 class('Score').extends(gfx.sprite)
 
-local font = gfx.font.new('img/space-harrier')
+local font = gfx.font.new('img/space-harrier2')
 
 function Score:init()
 	
@@ -24,10 +24,11 @@ function Score:addPoints(points)
 	self:markDirty()
 
     self.stage = math.floor(self.score / 1000) 
+	self.highScore = math.max(self.highScore, self.score)
 end
 
 function Score:draw()
-    gfx.setImageDrawMode(gfx.kDrawModeNXOR)
+    gfx.setImageDrawMode(gfx.kDrawModeInverted)
     gfx.setFontTracking(-1)
 	gfx.setFont(font)
 	gfx.drawText(string.format("SCORE %06d  HI SCORE %06d", self.score, self.highScore), 0, 0)
