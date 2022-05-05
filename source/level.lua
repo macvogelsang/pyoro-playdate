@@ -121,9 +121,11 @@ function Level:update()
                 -- clear all food
                 for i, f in ipairs(self.activeFood) do 
                     f.scored = true
-                    f:hit()
-                    globalScore:addPoints(50)
-                    Points(50, f.position, true, i)
+                    playdate.timer.performAfterDelay(50 * (i-1), function() 
+                        f:hit()
+                        globalScore:addPoints(50)
+                        Points(50, f.position, true)
+                    end)
                 end
 
                 self.foodTimer = CLEAR_ALL_RESET_TIMER * REFRESH_RATE

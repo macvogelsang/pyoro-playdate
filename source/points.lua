@@ -30,6 +30,7 @@ function Points:init(value, position, flashing, offset)
     self:setCenter(0.5, 0.5)
     self:moveTo(position)
 	self:setZIndex(LAYERS.points)
+
     self:add()
     self:setVisible(false)
 end
