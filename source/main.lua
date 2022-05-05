@@ -6,6 +6,7 @@ import "CoreLibs/timer"
 import 'constants'
 import 'util'
 import 'sfx'
+import 'lib/AnimatedSprite'
 import 'bgm'
 import 'menu'
 import 'bgscene'
@@ -17,7 +18,9 @@ import 'gameover'
 
 LAYERS = enum({
     'sky',
+    'comet',
     'buildings',
+    'fireworks',
     'hills',
     'frame',
     'block',
@@ -68,7 +71,7 @@ local function writeSave()
         newSave.bnb2 = save.bnb2
         
         -- unlock bird and beans 2
-        if newSave.bn1 >= 10000 and newSave.bnb2 < 0 then
+        if newSave.bnb1 >= 10000 and newSave.bnb2 < 0 then
             newSave.bnb2 = 0
         end
     else
@@ -114,7 +117,7 @@ function playdate.update()
         end
     end
     if gameover then
-        if gameover.ready and playdate.buttonJustPressed(playdate.kButtonA) then
+        if gameover.done then
             gameEnd()
         end
     end
@@ -144,6 +147,8 @@ function playdate.keyReleased(key)
     elseif key == 'n' then
         -- skip near the end of the current track(s)
         BGM:skipToLoopEnd()
+    elseif key == 'k' and level then
+        level.player:die()
     end
 end
 

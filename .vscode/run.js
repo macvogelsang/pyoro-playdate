@@ -21,4 +21,6 @@ if (sdkRoot == null) {
 }
 
 let simulatorPath = path.resolve(sdkRoot, "bin", "Playdate Simulator.app");
-exec(`/usr/bin/open -a \"${simulatorPath}\" \"${path.resolve(process.cwd(), process.env["PLAYDATE_OUTPUT"])}\"`);
+let execPath = `/usr/bin/open -a \"${simulatorPath}\" \"${path.resolve(process.cwd(), process.env["PLAYDATE_OUTPUT"])}\"`;
+console.log(execPath)
+exec(execPath)

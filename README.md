@@ -7,6 +7,4 @@ A Bird and Beans remake for Playdate.
 
 - Clean up tongue segments
 - clean up variables and create more constants
-- comets and 50k lights
-- death messages
 - card transitions

@@ -27,3 +27,8 @@ end
 function math.ring_int(a, min, max)
     return math.ring(a, min, max+1)
 end
+
+function table.random( t )
+    if type(t)~="table" then return nil end
+    return t[math.ceil(math.random(#t))]
+end

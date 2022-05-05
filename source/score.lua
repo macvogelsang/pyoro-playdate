@@ -16,6 +16,7 @@ function Score:init()
 	self:setSize(240, 20)
 	self:moveTo(200, 1)
 
+	self.newHighScore = false
 	self.monochromeMode = false
 end
 
@@ -24,7 +25,10 @@ function Score:addPoints(points)
 	self:markDirty()
 
     self.stage = math.floor(self.score / 1000) 
-	self.highScore = math.max(self.highScore, self.score)
+	if self.score > self.highScore then
+		self.highScore = self.score
+		self.newHighScore = true
+	end
 end
 
 function Score:draw()

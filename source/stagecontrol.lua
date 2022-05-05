@@ -160,7 +160,9 @@ function StageController:update(scene)
     end
 
     if self:reachedStage(50) then
-        BGM:addLayer(2)
+        if BGM.nowPlaying == BGM.kMonochrome then
+            BGM:addLayer(2)
+        end
     end
 
     if self.stage ~= self.prevStage then
@@ -168,6 +170,17 @@ function StageController:update(scene)
         if self.stage > 9 then
             spawnFoodCount += 1
         end
+        if self.stage >= 13 and self.stage < 20 then
+            SFX:play(SFX.kComet, true)
+            scene.comet:moveTo(math.random(180,220), math.random(40,60))
+            scene.comet:add()
+            scene.comet:stopAnimation()
+            scene.comet:playAnimation()
+        end
+    end
+
+    if self.stage >= 50 then
+        scene:updateFireworks()
     end
 
     if self.timeStage ~= self.prevTimeStage and self.timeStage >= 2 then

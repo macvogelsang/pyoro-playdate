@@ -1,5 +1,8 @@
 class('BGScene').extends(playdate.graphics.sprite)
 class('Buildings').extends(playdate.graphics.sprite)
+local fireworkImg = gfx.image.new('img/scene/firework')
+local FIREWORK_HEIGHT = 112
+local NUM_FIREWORKS = 12
 
 function BGScene:init()
     BGScene.super.init(self)
@@ -23,7 +26,21 @@ function BGScene:init()
         layer:add()
     end
 
+    local comet = AnimatedSprite.new(gfx.imagetable.new('img/scene/comet'))
+    comet:addState("streak", 1, nil, {
+        tickStep = 2, 
+        loop=false,
+        onLoopFinishedEvent = function (self) self:remove() end
+    })
+    comet:setZIndex(LAYERS.comet)
+    comet:setCenter(0.5,0.5)
+    
+    self.comet = comet
+
     self.buildings = Buildings()
+    self.fireworks = {}
+
+    self.yOffsets = {0, 5, 10, 13, 8, 12, 1, 17, 9, 11, 16, 6}
 end
 
 function BGScene:invert()
@@ -35,6 +52,41 @@ function BGScene:monochrome()
     self.layers[1]:remove()
     self.layers[2]:setImage(self.layers[2]:getImage():invertedImage())
     self.buildings:monochrome()
+end
+
+function BGScene:createFireworks(n)
+    local startPos = X_LOWER_BOUND + 10
+    local range = 290
+    local fireworkIncrement = range // n
+
+    for i=1,n do
+        local firework = gfx.sprite.new(fireworkImg)
+        firework:setCenter(0,0)
+        local ystart = 240 + (32 * self.yOffsets[i])
+        firework:moveTo(startPos + ((i-1) * fireworkIncrement), ystart)
+        firework:setZIndex(LAYERS.fireworks)
+        firework:add()
+        table.insert(self.fireworks, firework)
+    end
+end
+
+function BGScene:updateFireworks()
+    if #self.fireworks == 0 then
+        self:createFireworks(NUM_FIREWORKS)
+    else
+        for i, f in ipairs(self.fireworks) do
+            f:moveBy(0, -16)
+            if f.y <= - FIREWORK_HEIGHT then
+                f: moveTo(f.x, FIREWORK_HEIGHT + 230)
+            end
+        end
+    end
+end
+
+function BGScene:removeFireworks()
+    for i, f in ipairs(self.fireworks) do
+        f:remove()
+    end
 end
 
 local BUILDING_FADE_IN_FRAMES = 20
@@ -55,7 +107,6 @@ function Buildings:init()
 
     self.frame = 1
     self.drawBlank = false
- 
 end
 
 function Buildings:addBuilding(bld)
@@ -64,7 +115,6 @@ function Buildings:addBuilding(bld)
     table.insert(self.images, bld)
     self:markDirty()
     self.fadeInVal = 0 + BUILDING_FADE_STEP
-
 end
 
 function Buildings:removeBuilding(bld)

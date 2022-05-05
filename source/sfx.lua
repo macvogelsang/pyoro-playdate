@@ -19,6 +19,7 @@ SFX.kRestore4 = {'restore4'}
 SFX.kRestore5 = {'restore5'}
 
 SFX.kPoints50 = {'50_1', 0.8}
+SFX.kComet = {'comet'}
 
 SFX.kNormal395Transition = {'normal_395_transition'}
 
