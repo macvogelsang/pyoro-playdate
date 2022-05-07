@@ -6,6 +6,16 @@ local OFFSET_DELAY = 0.05 * REFRESH_RATE -- time in seconds to offset points pop
 
 function Points:init(value, position, flashing, offset)
     Points.super.init(self) 
+
+    self:setCenter(0.5, 0.5)
+	self:setZIndex(LAYERS.points)
+    self:setImage(imgTable:getImage(1, 1))
+    self:add()
+    self:despawn()
+end
+
+function Points:spawn(value, position, flashing, offset)
+
     self.flashing = flashing
     self.value = value
     local imgY = 1
@@ -25,14 +35,17 @@ function Points:init(value, position, flashing, offset)
     self.frame = 1
     self.lifespan = REFRESH_RATE * 0.5
     self.playedSound = false
-
     self:setImage(imgTable:getImage(1, imgY))
-    self:setCenter(0.5, 0.5)
     self:moveTo(position)
-	self:setZIndex(LAYERS.points)
+    self.playedSound = false
 
-    self:add()
+    self:setVisible(true)
+    self:setUpdatesEnabled(true)
+end
+
+function Points:despawn()
     self:setVisible(false)
+    self:setUpdatesEnabled(false)
 end
 
 function Points:update()
@@ -53,8 +66,7 @@ function Points:update()
         self.lifespan -= 1
 
         if self.lifespan <= 0 then
-            self:remove()
-            self = nil
+            self:despawn()
         end
     end
 end

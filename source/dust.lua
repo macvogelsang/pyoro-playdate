@@ -5,13 +5,24 @@ local FRAME_DUR = LIFESPAN / 3
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local imgTable = playdate.graphics.imagetable.new('img/dust')
-function Dust:init(position)
+function Dust:init()
 	Dust.super.init(self)
     self.lifespan = LIFESPAN 
     self:setImage(imgTable:getImage(1))
-    self:moveTo(position)
     self:setZIndex(LAYERS.dust)
     self:add()
+end
+
+function Dust:despawn()
+    self:setVisible(false)
+    self:setUpdatesEnabled(false)
+end
+
+function Dust:spawn(position)
+    self.lifespan = LIFESPAN
+    self:moveTo(position)
+    self:setVisible(true)
+    self:setUpdatesEnabled(true)
 end
 
 function Dust:update()
@@ -19,7 +30,6 @@ function Dust:update()
     self.lifespan -= 1
 
     if self.lifespan <= 0 then
-        self:remove() 
-        self = nil
+        self:despawn()
     end
 end

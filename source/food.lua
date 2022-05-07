@@ -21,45 +21,63 @@ local foodOutlineTable = playdate.graphics.imagetable.new('img/seed-outline')
 
 local spawnMonochrome = false
 
-function Food:init(foodType, speed, blockRef)
+function Food:init()
 	
 	Food.super.init(self)
 
-	self.type = foodType
-	self.speed = speed 
+	self.type = NORMAL
+	self.speed = 0 
+
 	self.frame = 1
 	self.animationIndex = 1 --math.random(#ANIMATION_SEQ)
-	self.imgTable = spawnMonochrome and foodOutlineTable or foodTable
-	self.imgRow = foodType 
-	self.blockRef = blockRef
+	self.imgRow = 1 
+	self.blockIndex = 1 
 
-	if self.imgRow > 2 then
-		self.imgRow = 2
-	end
-
+	self.imgTable = foodTable
 	self:setImage(self.imgTable:getImage(1, self.imgRow))
-
 	self:setZIndex(LAYERS.food)
 	self:setCenter(0.5, 0.5)	
-	self:setCollideRect(4,1,12,18)
-	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
-	if debugHarmlessFoodOn then
-		self:setCollidesWithGroups({COLLIDE_TONGUE_GROUP})
-	end
 
 	self.captured = false 
 	self.capturedPosition = nil
 	self.scored = false
 	self.endPosition = Point.new(0,0) 
 
-	self.position = Point.new(self.blockRef.xCenter + 1, 0)
-	self.velocity = vector2D.new(0, self.speed)
+	self.position = Point.new(0, 0)
+	self.velocity = vector2D.new(0, 0)
 
-	self:moveTo(self.position)
+	self.points = Points()
+	self.dust = Dust()
 	self:add()
-
+	self:setVisible(false)
+	self:setUpdatesEnabled(false)
 end
 
+function Food:spawn(foodType, speed, blockIndex)
+	self.type = foodType
+	self.blockIndex = blockIndex
+	self.speed = speed
+	self.hitGround = false
+	self.delete = false
+	self.scored = false
+	self.position.x = BLOCKS[self.blockIndex].xCenter + 1
+	self.position.y = 0
+	self.velocity.y = self.speed
+	self.imgRow = self.type
+	if self.imgRow > 2 then
+		self.imgRow = 2
+	end
+	self.imgTable = spawnMonochrome and foodOutlineTable or foodTable
+	self:setImage(self.imgTable:getImage(1, self.imgRow))
+	self:setCollideRect(4,1,12,18)
+	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
+	if debugHarmlessFoodOn then
+		self:setCollidesWithGroups({COLLIDE_TONGUE_GROUP})
+	end
+	self:moveTo(self.position)
+	self:setVisible(true)
+	self:setUpdatesEnabled(true)
+end
 
 function Food:capture(endPosition)
 	SFX:play(SFX.kCatchFood)
@@ -72,14 +90,21 @@ end
 
 function Food:hit(ground)
 	self.hitGround = debugHarmlessFoodOn and true or ground 
-	Dust(self.position)	
+	if self.hitGround then
+		BLOCKS[self.blockIndex]:destroy()
+	end
+	self.dust:spawn(self.position)
 	self:cleanup()
 end
 
 function Food:cleanup()
 	self.velocity = vector2D.new(0, 0) 
 	self.delete = true
-	self:remove()
+	self.captured = false
+	self.animationIndex = 1
+	self:clearCollideRect()
+	self:setVisible(false)
+	self:setUpdatesEnabled(false)
 end
 
 function Food:update()
@@ -88,7 +113,7 @@ function Food:update()
 	self.position = self.position + velocityStep
 	
 	-- made it to ground level
-	if self.position.y >= 229 and not self.captured and self.blockRef.placed then
+	if self.position.y >= 229 and not self.captured and BLOCKS[self.blockIndex].placed then
 		self:hit(true)
 	end
 

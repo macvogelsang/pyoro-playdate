@@ -1,21 +1,16 @@
-import 'player'
-import 'food'
-import 'block'
-import 'angel'
-import 'points'
-
 class('Level').extends(playdate.graphics.sprite)
 
 -- Time in seconds between seed spawns
 local NORMAL, HEAL, CLEAR = 1, 2, 3
 local PLAYER_OVERHANG_OFFSET = 4
 
-
 local bgImg = playdate.graphics.image.new('img/background')
 doBoundCalculation = false
 
 -- wait time before food spawns again after clearing all
 local CLEAR_ALL_RESET_TIMER = 2
+local foodPool = POOL.create((function() return Food() end), 32)
+BLOCKS = {}
 
 function Level:init()
     Level.super.init(self)
@@ -25,18 +20,25 @@ function Level:init()
     globalScore:add()
     BGM:play(BGM.kNormal)
 
+    if #BLOCKS == 0 then
+        for i = 1, NUM_BLOCKS do 
+            table.insert(BLOCKS, Block(i))
+        end
+    else
+        for i = 1, NUM_BLOCKS do 
+            BLOCKS[i]:place()
+        end
+    end
+
     self.scene = BGScene()
     self.stageController = StageController()
-    self.blocks = {}
     self.activeFood = {}
     self.firstClear = false
-    self.foodTimerInitial = 4
-    self.foodParams = STARTING_FOOD_PARAMS 
+    self.foodTimerInitial = 0
+    self.foodParams = STARTING_FOOD_PARAMS
 
-    self:setBlocks()
     -- self.foodTimer = 0
     self:resetFoodTimer()
-
     self:add()
 end
 
@@ -44,45 +46,29 @@ function Level:resetFoodTimer()
     self.foodTimer = self.foodTimerInitial * REFRESH_RATE
 end
 
-function Level:setBlocks()
-    self.blocks = {}
-
-    for i = 1, NUM_BLOCKS do
-        table.insert(self.blocks, Block(i))
-    end
-end
-
 function Level:update()
-    self.foodTimer = self.foodTimer - 1 
-    if self.foodTimer <= 0 then
-        self:resetFoodTimer()
-        self:spawnFood()
-    end
-
     -- check active food for collisions and such
     for i = #self.activeFood, 1, -1 do
         local food = self.activeFood[i]
-        if food.hitGround then
-            food.blockRef:destroy()
-            doBoundCalculation = true
-        end
         if food.delete then
+            if food.hitGround then doBoundCalculation = true end
+            foodPool:free(food)
             table.remove(self.activeFood, i)
         end
-    end    
-    
+    end
+
     -- move player and adjust its bounds
     self.player:moveTo(self.player.position)
     if doBoundCalculation then
         local left, right = self:getDirectionalDistsToPlayer()
         if #left > 0 then
-            local leftBlock = self.blocks[left[1].blockIndex]
+            local leftBlock = BLOCKS[left[1].blockIndex]
             self.player.minXPosition = leftBlock.x + BLOCK_WIDTH + PLAYER_OVERHANG_OFFSET + 1
         else
             self.player:resetMinXPosition()
         end
         if # right > 0 then
-            local rightBlock = self.blocks[right[1].blockIndex]
+            local rightBlock = BLOCKS[right[1].blockIndex]
             self.player.maxXPosition = rightBlock.x - PLAYER_OVERHANG_OFFSET
         else
             self.player:resetMaxXPosition()
@@ -98,14 +84,14 @@ function Level:update()
             -- score the food
             local points = self:calcPoints(food.capturedPosition.y)
             globalScore:addPoints(points)
-            Points(points, food.capturedPosition, food.type==CLEAR)
+            food.points:spawn(points, food.capturedPosition, food.type==CLEAR)
+
             -- handle heal and clear foods
             if food.type == HEAL then
                 -- repair one block
                 local dists = self:getAbsoluteDistsToPlayer()
                 if #dists > 0 then
-                    local block = self.blocks[dists[1].blockIndex]
-                    Angel(block)
+                    BLOCKS[dists[1].blockIndex].angel:spawn()
                 end
             end
             if food.type == CLEAR then
@@ -113,18 +99,17 @@ function Level:update()
                 local dists = self:getAbsoluteDistsToPlayer()
                 for i = 1, 10 do
                     if dists[i] then
-                        local block = self.blocks[dists[i].blockIndex]
-                        Angel(block, i)
+                        BLOCKS[dists[i].blockIndex].angel:spawn(i)
                     end
                 end
 
                 -- clear all food
-                for i, f in ipairs(self.activeFood) do 
+                for i, f in ipairs(self.activeFood) do
                     f.scored = true
-                    playdate.timer.performAfterDelay(50 * (i-1), function() 
+                    playdate.timer.performAfterDelay(50 * (i-1), function()
                         f:hit()
                         globalScore:addPoints(50)
-                        Points(50, f.position, true)
+                        f.points:spawn(50, f.position, true)
                     end)
                 end
 
@@ -138,25 +123,32 @@ function Level:update()
     local spawnFood = 0
     spawnFood, self.foodTimerInitial, self.foodParams = self.stageController:update(self.scene)
 
+    -- handle food spawning
     while spawnFood > 0 do
         self:spawnFood(CLEAR)
         spawnFood -= 1
     end
+    self.foodTimer -= 1
+    if self.foodTimer <= 0 then
+        self:resetFoodTimer()
+        self:spawnFood()
+    end
 
     if globalScore.monochromeMode then
-        for i, block in ipairs(self.blocks) do
+        for i, block in ipairs(BLOCKS) do
             block:monochrome()
-        end 
+        end
     end
+
 end
 
 function Level:spawnFood(type)
     local speed = nil
     local randy = math.random()
-    local checkSlow = self.foodParams.slow.chance 
+    local checkSlow = self.foodParams.slow.chance
     local checkMed = self.foodParams.med.chance + checkSlow
     if randy < checkSlow then
-        speed = self.foodParams.slow.speed 
+        speed = self.foodParams.slow.speed
     elseif randy < checkMed then
         speed = self.foodParams.med.speed
     else
@@ -165,22 +157,23 @@ function Level:spawnFood(type)
 
     if type == nil then
         local randy = math.random()
-        if randy < 0.9 then 
+        if randy < 0.9 then
             type = NORMAL
         else
             type = HEAL
         end
     end
-    
 
     -- spawn a new food over a random block
-    table.insert(self.activeFood, Food(type, speed, self.blocks[math.random(NUM_BLOCKS)]))
+    local food  = foodPool:obtain()
+    food:spawn(type, speed, math.random(1, NUM_BLOCKS))
+    table.insert(self.activeFood, food)
 end
 
 function Level:getDirectionalDistsToPlayer()
     local nearLeft = {} -- hold negative distances
     local nearRight = {} -- hold positive distances
-    for i, b in ipairs(self.blocks) do
+    for i, b in ipairs(BLOCKS) do
         if not b.placed then
             local dist = b.xCenter - self.player.position.x
             if dist < 0 then
@@ -198,7 +191,7 @@ end
 function Level:getAbsoluteDistsToPlayer()
     local dists = {}
 
-    for i, b in ipairs(self.blocks) do
+    for i, b in ipairs(BLOCKS) do
         if not b.placed then
             local dist = math.abs(b.xCenter - self.player.position.x)
             table.insert(dists, {dist = dist, blockIndex = i})
@@ -209,7 +202,7 @@ function Level:getAbsoluteDistsToPlayer()
 end
 
 function Level:calcPoints(y)
-    if y >= 163 then 
+    if y >= 163 then
         return 10
     elseif y >= 115 then
         return 50
@@ -222,7 +215,12 @@ function Level:calcPoints(y)
     end
 end
 
-function Level:endLevel()
-    self.activeFood = nil
-    self.blocks = nil
+function Level:endScene()
+    for i = #self.activeFood, 1, -1 do
+        local food = self.activeFood[i]
+        food:cleanup()
+        foodPool:free(food)
+        table.remove(self.activeFood, i)
+    end 
+    self:setUpdatesEnabled(false)
 end

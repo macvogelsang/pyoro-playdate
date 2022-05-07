@@ -30,7 +30,7 @@ function BGScene:init()
     comet:addState("streak", 1, nil, {
         tickStep = 2, 
         loop=false,
-        onLoopFinishedEvent = function (self) self:remove() end
+        onLoopFinishedEvent = function (self) self:setVisible(false) end
     })
     comet:setZIndex(LAYERS.comet)
     comet:setCenter(0.5,0.5)
@@ -110,7 +110,6 @@ function Buildings:init()
 end
 
 function Buildings:addBuilding(bld)
-    print(bld)
     bld.file = gfx.image.new('img/scene/' .. bld.name)
     table.insert(self.images, bld)
     self:markDirty()

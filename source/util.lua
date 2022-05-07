@@ -32,3 +32,22 @@ function table.random( t )
     if type(t)~="table" then return nil end
     return t[math.ceil(math.random(#t))]
 end
+
+LAYERS = enum({
+    'sky',
+    'comet',
+    'buildings',
+    'fireworks',
+    'hills',
+    'frame',
+    'block',
+    'dust',
+    'angel',
+    'food',
+    'tongue',
+    'points',
+    'player',
+    'text',
+    'menu',
+    'cursor'
+})

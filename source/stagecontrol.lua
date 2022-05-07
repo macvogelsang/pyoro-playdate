@@ -173,8 +173,7 @@ function StageController:update(scene)
         if self.stage >= 13 and self.stage < 20 then
             SFX:play(SFX.kComet, true)
             scene.comet:moveTo(math.random(180,220), math.random(40,60))
-            scene.comet:add()
-            scene.comet:stopAnimation()
+            scene.comet:setVisible(true)
             scene.comet:playAnimation()
         end
     end
@@ -220,7 +219,7 @@ function StageController:recalculateFoodParams(newTimeStage)
     else
         stageBasedFt = STAGE_FOOD_TIMER_FUNC[self.stage + 1]
     end
-    print(timeBasedFt, stageBasedFt)
+    -- print(timeBasedFt, stageBasedFt)
     self.foodTimer = math.min(timeBasedFt, stageBasedFt) 
 
     if newTimeStage then

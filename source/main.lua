@@ -7,33 +7,21 @@ import 'constants'
 import 'util'
 import 'sfx'
 import 'lib/AnimatedSprite'
+POOL =
+import 'lib/pool'
 import 'bgm'
 import 'menu'
 import 'bgscene'
 import 'stagecontrol'
+import 'block'
+import 'player'
+import 'food'
+import 'angel'
+import 'points'
 import 'level'
 import 'score'
 import "tongue"
 import 'gameover'
-
-LAYERS = enum({
-    'sky',
-    'comet',
-    'buildings',
-    'fireworks',
-    'hills',
-    'frame',
-    'block',
-    'dust',
-    'angel',
-    'food',
-    'tongue',
-    'points',
-    'player',
-    'text',
-    'menu',
-    'cursor'
-})
 
 globalScore = nil
 game = BNB1
@@ -84,8 +72,7 @@ end
 
 local function gameEnd()
     writeSave()
-    gfx.sprite.removeAll()
-    level:endLevel()
+    level:endScene()
     BGM:stopAll()
     level = nil
     gameover = nil
@@ -118,6 +105,7 @@ function playdate.update()
     end
     if gameover then
         if gameover.done then
+            gameover:endScene()
             gameEnd()
         end
     end

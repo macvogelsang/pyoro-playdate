@@ -11,51 +11,53 @@ local DOWN, UP = 1, 2
 local FLASH_CYCLE_LEN = 4 * FRAME_LEN
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local imgTable = playdate.graphics.imagetable.new('img/angel')
-local imgOutlineTable = playdate.graphics.imagetable.new('img/angel-outline')
+local imgTable = gfx.imagetable.new('img/angel')
+local imgOutlineTable = gfx.imagetable.new('img/angel-outline')
 
 local OFFSET_DELAY = 300 -- time in milliseconds to offset angel falling
 local RESTORE_SEQ = {1,2,3,4,5,4,5,4,5,4}
 
 local spawnMonochrome = false
 
-function Angel:init(block, offset)
-	
+function Angel:init(blockIndex, xpos)
 	Angel.super.init(self)
 
 	self.speed = FALL_VELOCITY
-	self.offset = offset or 1
-	self.frame = 1
-	self.imgTable = spawnMonochrome and imgOutlineTable or imgTable
-	self.block = block
+	self.blockIndex = blockIndex
 
-	self.state = DOWN
-
-	self:setImage(imgTable:getImage(1, self.state))
-
+	self:setImage(imgTable:getImage(1, 1))
 	self:setZIndex(LAYERS.angel)
 	self:setCenter(0.5, 1)	
 
-	self.position = Point.new(block.xCenter, -20)
+	self.initialPosition = Point.new(xpos, -20)
 	self.velocity = vector2D.new(0, self.speed)
 
-	self:moveTo(self.position)
-
-	playdate.timer.performAfterDelay(OFFSET_DELAY * (self.offset - 1), function() 
-		self:spawn()
-	end)
-
+	self:moveTo(self.initialPosition)
+	self:add()
+	self:despawn()
 end
 
-function Angel:spawn()
-	self:add()
-	SFX:play(SFX.kTenshi, true)
+function Angel:despawn()
+	self.state = DOWN
+	self.frame = 1
+	self:setUpdatesEnabled(false)
+	self:setVisible(false)
+	self.position = self.initialPosition
+end
+
+function Angel:spawn(offset)
+	self.offset = offset or 1
+	self.imgTable = spawnMonochrome and imgOutlineTable or imgTable
+	playdate.timer.performAfterDelay(OFFSET_DELAY * (self.offset - 1), function() 
+		self:setUpdatesEnabled(true)
+		self:setVisible(true)
+		SFX:play(SFX.kTenshi, true)
+	end)
 end
 
 function Angel:reverse()
 	-- play sound
 	self.state = UP
-	self.block:place()
 	self.velocity = self.velocity * -1 
 	SFX:play({'restore' .. tostring(RESTORE_SEQ[self.offset])}, true)
 end
@@ -84,11 +86,8 @@ function Angel:update()
 	self.frame = self.frame + 1
 
 	if self.position.y <= -50 then
-		self:remove()
-		self.imgTable = imgTable
-		self = nil
+		self:despawn()
 	end
-
 
 end
 

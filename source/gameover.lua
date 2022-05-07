@@ -77,5 +77,7 @@ function GameOver:fadeInDeathMsg()
     self.fadeInVal += FADE_INCREMENT
 end
 
-function GameOver:draw()
+function GameOver:endScene()
+    self.deathSprite:remove()
+    self:remove()
 end
