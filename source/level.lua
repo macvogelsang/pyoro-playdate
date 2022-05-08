@@ -34,7 +34,7 @@ function Level:init()
     self.stageController = StageController()
     self.activeFood = {}
     self.firstClear = false
-    self.foodTimerInitial = 0
+    self.foodTimerInitial = 4
     self.foodParams = STARTING_FOOD_PARAMS
 
     -- self.foodTimer = 0
@@ -134,10 +134,9 @@ function Level:update()
         self:spawnFood()
     end
 
-    if globalScore.monochromeMode then
-        for i, block in ipairs(BLOCKS) do
-            block:monochrome()
-        end
+    local monochromeTicker = globalScore.monochromeTicker
+    if monochromeTicker > 0 and monochromeTicker <= 30 then
+        BLOCKS[monochromeTicker]:monochrome()
     end
 
 end
@@ -223,4 +222,9 @@ function Level:endScene()
         table.remove(self.activeFood, i)
     end 
     self:setUpdatesEnabled(false)
+    self.scene:removeLayers()
+    self.scene:remove()
+    self.player:remove()
+    globalScore:remove()
+    self.stageController = nil
 end

@@ -49,7 +49,7 @@ function BGScene:invert()
 end
 
 function BGScene:monochrome()
-    self.layers[1]:remove()
+    self.layers[1]:setVisible(false)
     self.layers[2]:setImage(self.layers[2]:getImage():invertedImage())
     self.buildings:monochrome()
 end
@@ -87,6 +87,14 @@ function BGScene:removeFireworks()
     for i, f in ipairs(self.fireworks) do
         f:remove()
     end
+end
+
+function BGScene:removeLayers()
+    for _, layer in ipairs(self.layers) do
+        layer:remove()
+    end 
+    self.comet:remove()
+    self.buildings:remove()
 end
 
 local BUILDING_FADE_IN_FRAMES = 20
@@ -135,7 +143,7 @@ function Buildings:draw()
     gfx.setImageDrawMode(self.drawMode)
     for i = #self.images, 1, -1 do
         local bld = self.images[i]
-        if i == #self.images then
+        if i == #self.images  and bld ~= BLD.kLights then
             bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, gfx.image.kDitherTypeBayer2x2)
             if self.fadeInVal < 1 then
                 -- self:markDirty()

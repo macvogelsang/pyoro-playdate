@@ -35,6 +35,8 @@ local function initialize()
 
     math.randomseed(playdate.getSecondsSinceEpoch())
     playdate.display.setRefreshRate(REFRESH_RATE)
+    -- force gc to run for at least 2ms each frame
+    playdate.setMinimumGCTime(2)
 
     gfx.sprite.setAlwaysRedraw(true)
     -- printTable(background)
@@ -117,7 +119,7 @@ function playdate.debugDraw()
 end
 
 debugHarmlessFoodOn = false
-debugPlayerInvincible = false
+debugPlayerInvincible = true 
 
 function playdate.keyReleased(key) 
     print(key)
@@ -155,7 +157,7 @@ local gameEndItem, error = sysMenu:addMenuItem("quit game", function()
     gameEnd()
 end)
 
-local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", false, function(value)
+local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", debugPlayerInvincible, function(value)
     debugPlayerInvincible = value
 end)
 

@@ -133,12 +133,12 @@ function Food:update()
 	end
 	self.frame += 1
 
-	if globalScore.monochromeMode then
-		self.imgTable = foodOutlineTable
+	if globalScore.monochromeTicker > 0 then
+		-- self.imgTable = foodOutlineTable
 		spawnMonochrome = true
 	else
 		self.imgTable = foodTable
-		spawnMonochrome = false
+		-- spawnMonochrome = false
 	end
 end
 

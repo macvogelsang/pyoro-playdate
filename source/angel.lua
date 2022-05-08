@@ -31,8 +31,7 @@ function Angel:init(blockIndex, xpos)
 
 	self.initialPosition = Point.new(xpos, -20)
 	self.velocity = vector2D.new(0, self.speed)
-
-	self:moveTo(self.initialPosition)
+	self.position = Point.new(0,0)
 	self:add()
 	self:despawn()
 end
@@ -40,9 +39,11 @@ end
 function Angel:despawn()
 	self.state = DOWN
 	self.frame = 1
+	self.velocity.y = self.speed
 	self:setUpdatesEnabled(false)
 	self:setVisible(false)
-	self.position = self.initialPosition
+	self.position = self.initialPosition:copy()
+	self:moveTo(self.initialPosition)
 end
 
 function Angel:spawn(offset)
@@ -66,18 +67,19 @@ function Angel:update()
 
 	local velocityStep = self.velocity * DT 
 	self.position = self.position + velocityStep
-	
 	-- don't move outside the walls of the game
 	if self.position.y >= 238 then
 		self:reverse()
 	end
 
-	if globalScore.monochromeMode then
-		self.imgTable = imgOutlineTable
-		spawnMonochrome = true
-	else
-		self.imgTable = imgTable
-		spawnMonochrome = false
+	local monochromeTicker = globalScore.monochromeTicker
+	if monochromeTicker > 0 then
+		spawnMonochrome = true		
+		if monochromeTicker >= self.blockIndex then
+			self.imgTable = imgOutlineTable
+		end
+	else 
+		spawnMonochrome = false	
 	end
 
 	self:moveTo(self.position)

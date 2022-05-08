@@ -10,13 +10,24 @@ local EXTEND_VELOCITY = 200
 local RETRACT_MULTIPLIER = -5
 local TONGUE_WIDTH = 11
 local SEGMENT_WIDTH = 5 -- lower width means more overlap between segment sprites
-
+local MAX_SEGMENTS = PLAY_AREA_WIDTH / SEGMENT_WIDTH
 -- local variables - these are "class local" but since we only have one tongue this isn't a problem
 local minXPosition = X_LOWER_BOUND + TONGUE_WIDTH/2
 local maxXPosition = X_UPPER_BOUND - TONGUE_WIDTH/2 
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local tongueImages = playdate.graphics.imagetable.new('img/tongue')
+local tongueImages = gfx.imagetable.new('img/tongue')
+
+local function createSegment()
+	local segment = gfx.sprite.new()
+	segment:setImage(tongueImages:getImage(2))
+	segment:setZIndex(LAYERS.tongue - 1)
+	segment:setVisible(false)
+	segment:add()
+	return segment
+end
+
+local tonguePool = POOL.create( createSegment, MAX_SEGMENTS)
 
 function Tongue:init(x, y, direction)
 	
@@ -125,11 +136,10 @@ end
 
 function Tongue:drawSegment()
 	if math.abs(self.position.x - self.startPosition.x)/SEGMENT_WIDTH > #self.segments then
-		local segment = gfx.sprite.new()
+		local segment = tonguePool:obtain() 
 		segment:setImage(tongueImages:getImage(2), self.direction == RIGHT and gfx.kImageFlippedX or gfx.kImageUnflipped)
 		segment:moveTo(self.position.x, self.position.y)
-		segment:setZIndex(LAYERS.tongue - 1)
-		segment:add()
+		segment:setVisible(true)
 		table.insert(self.segments, segment)
 	end
 end
@@ -137,9 +147,12 @@ end
 function Tongue:removeSegmentsUntil(numSegments)
 	while #self.segments > numSegments do 
 		local segment = table.remove(self.segments)
-		segment:remove()
+		segment:setVisible(false)
+		tonguePool:free(segment)
 	end
 end
+
+
 
 function Tongue:hasFood() 
 	return self.food ~= nil

@@ -17,7 +17,7 @@ function Score:init()
 	self:moveTo(200, 1)
 
 	self.newHighScore = false
-	self.monochromeMode = false
+	self.monochromeTicker = 0
 end
 
 function Score:addPoints(points)

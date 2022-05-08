@@ -175,7 +175,7 @@ function Player:update()
 		self.position.x = self.maxXPosition
 	end
 	
-	if globalScore.monochromeMode then
+	if globalScore.monochromeTicker > 0 then
 		self.color = MONO
 	else
 		self.color = COLOR

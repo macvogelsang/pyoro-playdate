@@ -13,7 +13,8 @@ function Block:init(i)
     self:setImage(blockImg)
     self:place()
 
-    self.angel = Angel(blockIndex, self.xCenter)
+    self.img = blockImg
+    self.angel = Angel(self.blockIndex, self.xCenter)
 
     self:add()
 end
@@ -23,6 +24,10 @@ function Block:place()
     self.placed = true
     self:setVisible(true)
     self:moveTo(self.xPos, 229)
+
+    local img = globalScore.monochromeTicker > 0 and blockOutlineImg or blockImg
+    self:setImage(img)
+
     doBoundCalculation = true
 end
 

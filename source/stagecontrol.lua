@@ -148,12 +148,18 @@ function StageController:update(scene)
         scene:invert()
     end
 
+    local monochromeTicker = globalScore.monochromeTicker
+    if monochromeTicker >= 1 and monochromeTicker < 30 then
+        globalScore.monochromeTicker += 1
+    end
+
     if self:reachedStage(30) then
         BGM:play(BGM.kMonochromeIntro)
         BGM:addLayer(1)
         scene:monochrome()
-        globalScore.monochromeMode = true
+        globalScore.monochromeTicker = 1
     end
+
 
     if self:reachedStage(40) then
         scene.buildings:startFlashing()
