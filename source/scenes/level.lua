@@ -1,10 +1,10 @@
-class('Level').extends(playdate.graphics.sprite)
+class('Level').extends(gfx.sprite)
 
 -- Time in seconds between seed spawns
 local NORMAL, HEAL, CLEAR = 1, 2, 3
 local PLAYER_OVERHANG_OFFSET = 4
 
-local bgImg = playdate.graphics.image.new('img/background')
+local bgImg = gfx.image.new('img/background')
 doBoundCalculation = false
 
 -- wait time before food spawns again after clearing all

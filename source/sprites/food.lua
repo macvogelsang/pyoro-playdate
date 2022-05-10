@@ -1,4 +1,4 @@
-class('Food').extends(playdate.graphics.sprite)
+class('Food').extends(gfx.sprite)
 
 -- local references
 local Point = playdate.geometry.point
@@ -14,8 +14,8 @@ local minXPosition = X_LOWER_BOUND + FOOD_WIDTH/2
 local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2 
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local foodTable = BAGEL_MODE and playdate.graphics.imagetable.new('img/bagel') or playdate.graphics.imagetable.new('img/seed') 
-local foodOutlineTable = playdate.graphics.imagetable.new('img/seed-outline') 
+local foodTable = BAGEL_MODE and gfx.imagetable.new('img/bagel') or gfx.imagetable.new('img/seed') 
+local foodOutlineTable = gfx.imagetable.new('img/seed-outline') 
 
 local spawnMonochrome = false
 

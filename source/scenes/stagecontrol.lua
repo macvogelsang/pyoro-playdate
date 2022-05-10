@@ -194,7 +194,7 @@ function StageController:update(scene)
     if self.timeStage ~= self.prevTimeStage and self.timeStage >= 2 then
         self:recalculateFoodParams(true)
     end
-    self.stageTimeSeconds += 1/REFRESH_RATE
+    self.stageTimeSeconds += FRAME_TIME_SEC
     return spawnFoodCount, self.foodTimer, self.foodParams
 end
 

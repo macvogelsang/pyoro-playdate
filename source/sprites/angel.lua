@@ -1,5 +1,5 @@
 
-class('Angel').extends(playdate.graphics.sprite)
+class('Angel').extends(gfx.sprite)
 
 -- local references
 local Point = playdate.geometry.point

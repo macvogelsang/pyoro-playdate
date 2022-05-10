@@ -1,6 +1,6 @@
-class('Points').extends(playdate.graphics.sprite)
+class('Points').extends(gfx.sprite)
 
-local imgTable = playdate.graphics.imagetable.new('img/scores')
+local imgTable = gfx.imagetable.new('img/scores')
 local FLASH_FRAMES = 3
 local OFFSET_DELAY = 0.05 * REFRESH_RATE -- time in seconds to offset points popping 
 

@@ -1,5 +1,5 @@
 
-class('Tongue').extends(playdate.graphics.sprite)
+class('Tongue').extends(gfx.sprite)
 
 -- local references
 local Point = playdate.geometry.point

@@ -11,6 +11,7 @@ Y_RANGE = Y_UPPER_BOUND - Y_LOWER_BOUND
 SCORE_SECTION_HEIGHT = Y_RANGE / 5
 
 LEFT, RIGHT = -1, 1
+
 -- hit constants
 GROUND, NONGROUND, SPIT = 1, 2, 3
 
@@ -30,17 +31,5 @@ BNB1, BNB2 = 'bnb1', 'bnb2'
 
 BAGEL_MODE = false 
 
-
 gfx = playdate.graphics
 SCORE_FONT = gfx.font.new('img/fonts/space-harrier2')
-
---[[
-
-See you later!
-Take a break!
-Better luck next time.
-Ouch!
-Hang in there!
-
-
-]]--

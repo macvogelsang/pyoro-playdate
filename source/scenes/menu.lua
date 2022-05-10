@@ -1,4 +1,4 @@
-class('Menu').extends(playdate.graphics.sprite)
+class('Menu').extends(gfx.sprite)
 
 local homeTable = gfx.imagetable.new('img/menu/home')
 local about = gfx.image.new('img/menu/about')

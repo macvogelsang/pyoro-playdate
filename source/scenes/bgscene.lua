@@ -1,5 +1,5 @@
-class('BGScene').extends(playdate.graphics.sprite)
-class('Buildings').extends(playdate.graphics.sprite)
+class('BGScene').extends(gfx.sprite)
+class('Buildings').extends(gfx.sprite)
 local fireworkImg = gfx.image.new('img/scene/firework')
 local FIREWORK_HEIGHT = 112
 local NUM_FIREWORKS = 12

@@ -1,4 +1,4 @@
-class('Block').extends(playdate.graphics.sprite)
+class('Block').extends(gfx.sprite)
 
 local blockImg = gfx.image.new('img/block')
 local blockOutlineImg = gfx.image.new('img/block-outline')

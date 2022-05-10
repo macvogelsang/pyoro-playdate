@@ -1,5 +1,5 @@
 
-class('Player').extends(playdate.graphics.sprite)
+class('Player').extends(gfx.sprite)
 
 -- local references
 local Point = playdate.geometry.point
@@ -50,7 +50,7 @@ function Player:init()
 	self:setGroups({COLLIDE_PLAYER_GROUP})
 
 	if self.tongueMode then
-		self:setCollideRect(1,1,18,18)
+		self:setCollideRect(2,1,18,18)
 	else
 		self:setCollideRect(9,11,19,18)
 	end
