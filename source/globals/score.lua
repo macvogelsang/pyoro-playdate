@@ -1,6 +1,6 @@
 class('Score').extends(gfx.sprite)
 
-local font = gfx.font.new('img/space-harrier2')
+local font = gfx.font.new('img/fonts/space-harrier2')
 
 function Score:init()
 	

@@ -1,5 +1,3 @@
-import 'dust'
-
 class('Food').extends(playdate.graphics.sprite)
 
 -- local references

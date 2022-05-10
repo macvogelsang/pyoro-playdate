@@ -1,27 +1,4 @@
-import "CoreLibs/object"
-import "CoreLibs/graphics"
-import "CoreLibs/sprites"
-import "CoreLibs/frameTimer"
-import "CoreLibs/timer"
-import 'constants'
-import 'util'
-import 'sfx'
-import 'lib/AnimatedSprite'
-POOL =
-import 'lib/pool'
-import 'bgm'
-import 'menu'
-import 'bgscene'
-import 'stagecontrol'
-import 'block'
-import 'player'
-import 'food'
-import 'angel'
-import 'points'
-import 'level'
-import 'score'
-import "tongue"
-import 'gameover'
+import 'imports'
 
 globalScore = nil
 game = BNB1

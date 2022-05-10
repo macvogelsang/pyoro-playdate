@@ -4,7 +4,7 @@ class('GameOver').extends(gfx.sprite)
 local img = gfx.image.new('img/gameover')
 local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
-local font = gfx.font.new('img/connection_bold')
+local font = gfx.font.new('img/fonts/connection_bold')
 local FADE_DURATION_FRAMES = 0.5 * REFRESH_RATE
 local FADE_INCREMENT =1 / FADE_DURATION_FRAMES 
 local DEATH_MSG_FRAMES = 2 * REFRESH_RATE
