@@ -12,5 +12,4 @@ A Bird and Beans remake for Playdate.
 - tweak difficulty including >30k 0.2s spawn rate
 - crank support
 
-- draw new building sprites
 - leave falling sprites and spit

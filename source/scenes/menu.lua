@@ -12,7 +12,7 @@ function Menu:init(save)
     Menu.super.init(self)
 
     self.menuItems = 3
-    self.cursorIndex = 1
+    self.cursorIndex = game == BNB1 and 1 or 2
     self.frame = 1
     self.ai = 1
     self.goNextScene = false

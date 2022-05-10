@@ -1,17 +1,19 @@
 class('StageController').extends()
+local FADE1 = 0.8
+local FADE2 = 1
 BLD = {}
-BLD.kLamp = {name = '2_lamp',x = 269,y = 174}
-BLD.kLamp2 = {name = '2_lamp',x = 223,y = 185 }
-BLD.kHouse = {name = '3_house',x = 151,y = 161 }
-BLD.kWheel = {name = '4_wheel',x = 112,y = 130 }
-BLD.kBridge = {name = '6_bridge',x = 193,y = 118} 
-BLD.kTower = {name = '7_tower',x = 151,y = 60}
-BLD.kSkyscraper = {name = '8_skyscraper',x = 97,y = 32}
-BLD.kUfo = {name = '9_ufo',x = 145,y = 26 }
-BLD.kMoon = {name = '10_moon',x = 216,y = 71 }
-BLD.kPlanet = {name = '11_planet',x = 52,y = 7 }
-BLD.kCity = {name = '12_city',x = 262,y = 8}
-BLD.kLights = {name = 'lights',x = 0,y = 0}
+BLD.k1 = {{name = '2_lamp',x = 269,y = 174}, {name = '2b_lamp',x = 267,y = 177}} 
+BLD.k2 = {{name = '2_lamp',x = 223,y = 185}, {name = '2b_lamp',x = 215,y = 166}}   
+BLD.k3 = {{name = '3_house',x = 151,y = 161}, {name = '3b_monster',x = 154,y = 154}}   
+BLD.k4 = {{name = '4_wheel',x = 112,y = 130}, {name = '4b_home',x = 122,y = 94, fade=FADE1}}   
+BLD.k6 = {{name = '6_bridge',x = 193,y = 118, fade=FADE1}, {name = '6b_turbine',x = 273,y = 99, fade=FADE1}}   
+BLD.k7 = {{name = '7_tower',x = 151,y = 60, fade=FADE1}, {name = '7b_castle',x = 146,y = 46, fade=FADE1}}   
+BLD.k8 = {{name = '8_skyscraper',x = 97,y = 32}, {name = '8b_tower',x = 94,y = 16, fade=FADE1}}   
+BLD.k9 = {{name = '9_ufo',x = 145,y = 26 }, {name = '9b_ufo',x = 139,y = 15, fade=FADE2}}  
+BLD.k10 = {{name = '10_moon',x = 216,y = 71 }, {name = '10b_moon',x = 218,y = 67}}   
+BLD.k11 = {{name = '11_planet',x = 52,y = 7 }, {name = '11b_planet',x = 47,y = 3, fade=FADE2}}   
+BLD.k12 = {{name = '12_city',x = 262,y = 8}, {name = '12b_city',x = 274,y = -7, fade=FADE2}}   
+BLD.kLights = {{name = 'lights',x = 0,y = 0}, {name = 'lights2',x = 0,y = 0}}   
 
 -- hard-coded function that determines how the current stage (index) affects the food timer (value)
 STAGE_FOOD_TIMER_FUNC = {2, 1, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, 0.25}-- 12
@@ -79,6 +81,7 @@ function StageController:init()
     self.stageTimeSeconds = 0
     self.timeStage = 0
     self.prevTimeStage = 0
+    self.gi = game == BNB1 and 1 or 2
 
     self.foodTimer = STARTING_FOOD_TIMER
     self.foodParams = STARTING_FOOD_PARAMS
@@ -92,19 +95,19 @@ function StageController:update(scene)
     self:setStageData(globalScore.stage)
 
     if self:reachedStage(1) then
-        scene.buildings:addBuilding(BLD.kLamp)
+        scene.buildings:addBuilding(BLD.k1[self.gi])
     end
 
     if self:reachedStage(2) then
-        scene.buildings:addBuilding(BLD.kLamp2)
+        scene.buildings:addBuilding(BLD.k2[self.gi])
     end
 
     if self:reachedStage(3) then
-        scene.buildings:addBuilding(BLD.kHouse)
+        scene.buildings:addBuilding(BLD.k3[self.gi])
     end
 
     if self:reachedStage(4) then
-        scene.buildings:addBuilding(BLD.kWheel)
+        scene.buildings:addBuilding(BLD.k4[self.gi])
     end
 
     if self:reachedStage(5) then
@@ -113,34 +116,34 @@ function StageController:update(scene)
     end
 
     if self:reachedStage(6) then
-        scene.buildings:addBuilding(BLD.kBridge)
+        scene.buildings:addBuilding(BLD.k6[self.gi])
     end
 
     if self:reachedStage(7) then
         spawnFoodCount+=1
-        scene.buildings:addBuilding(BLD.kTower)
+        scene.buildings:addBuilding(BLD.k7[self.gi])
     end
 
     if self:reachedStage(8) then
-        scene.buildings:addBuilding(BLD.kSkyscraper)
+        scene.buildings:addBuilding(BLD.k8[self.gi])
     end
 
     if self:reachedStage(9) then
         spawnFoodCount+=1
-        scene.buildings:addBuilding(BLD.kUfo)
+        scene.buildings:addBuilding(BLD.k9[self.gi])
     end
 
     if self:reachedStage(10) then
-        scene.buildings:addBuilding(BLD.kMoon)
+        scene.buildings:addBuilding(BLD.k10[self.gi])
         BGM:addLayer(2)
     end
 
     if self:reachedStage(11) then
-        scene.buildings:addBuilding(BLD.kPlanet)
+        scene.buildings:addBuilding(BLD.k11[self.gi])
     end
 
     if self:reachedStage(12) then
-        scene.buildings:addBuilding(BLD.kCity)
+        scene.buildings:addBuilding(BLD.k12[self.gi])
     end
 
     if self:reachedStage(20) then

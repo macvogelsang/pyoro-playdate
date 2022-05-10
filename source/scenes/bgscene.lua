@@ -3,7 +3,8 @@ class('Buildings').extends(playdate.graphics.sprite)
 local fireworkImg = gfx.image.new('img/scene/firework')
 local FIREWORK_HEIGHT = 112
 local NUM_FIREWORKS = 12
-
+local FADE_LAYERS = {0.4, 0.8, 1}
+local FADE_TYPE = gfx.image.kDitherTypeBayer2x2
 function BGScene:init()
     BGScene.super.init(self)
 
@@ -104,6 +105,7 @@ function Buildings:init()
     Buildings.super.init(self)
 
     self.images = {}
+    self.monochrome = false
     self.drawMode = gfx.kDrawModeCopy
     self:setSize(400,240)
     self:setCenter(0,0)
@@ -129,10 +131,11 @@ function Buildings:removeBuilding(bld)
 end
 
 function Buildings:monochrome()
-    self.drawMode = gfx.kDrawModeInverted
     self.images = {}
-    self:addBuilding(BLD.kLights)
-    self:markDirty()
+    local gi = GAME == BNB1 and 1 or 2
+    self.monochrome = true
+    self:addBuilding(BLD.kLights[gi])
+    self:addBuilding(BLD.k10[gi])
 end
 
 function Buildings:startFlashing()
@@ -143,12 +146,14 @@ function Buildings:draw()
     gfx.setImageDrawMode(self.drawMode)
     for i = #self.images, 1, -1 do
         local bld = self.images[i]
-        if i == #self.images  and bld ~= BLD.kLights then
-            bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, gfx.image.kDitherTypeBayer2x2)
-            if self.fadeInVal < 1 then
-                -- self:markDirty()
+        local fadeEnd = bld.fade or 1
+        if i == #self.images  and not self.monochrome then
+            bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, FADE_TYPE)
+            if self.fadeInVal < fadeEnd then
                 self.fadeInVal += BUILDING_FADE_STEP
             end
+        elseif bld.fade then
+            bld.file:drawFaded(bld.x, bld.y, bld.fade, FADE_TYPE)
         else
             bld.file:draw(bld.x, bld.y)
         end
