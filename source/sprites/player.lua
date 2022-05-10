@@ -140,7 +140,7 @@ function Player:update()
 
 	-- collision check
 	local collisions = self:overlappingSprites()
-	if #collisions > 0 then
+	if #collisions > 0 and not self.dead then
 		local food = table.remove(collisions)
 		food:hit(NONGROUND)
 		if not debugPlayerInvincible then

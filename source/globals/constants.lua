@@ -31,9 +31,8 @@ BNB1, BNB2 = 'bnb1', 'bnb2'
 BAGEL_MODE = false 
 
 
-
-
 gfx = playdate.graphics
+SCORE_FONT = gfx.font.new('img/fonts/space-harrier2')
 
 --[[
 

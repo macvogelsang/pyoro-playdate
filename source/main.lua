@@ -6,18 +6,8 @@ game = BNB1
 local save = nil
 local level = nil
 local gameover = nil
-local menu = Menu()
+local menu = nil
 
-local function initialize()
-
-    math.randomseed(playdate.getSecondsSinceEpoch())
-    playdate.display.setRefreshRate(REFRESH_RATE)
-    -- force gc to run for at least 2ms each frame
-    playdate.setMinimumGCTime(2)
-
-    gfx.sprite.setAlwaysRedraw(true)
-    -- printTable(background)
-end
 
 local function loadSave() 
     save = playdate.datastore.read()
@@ -28,7 +18,19 @@ local function loadSave()
         }
         game = BNB1
     end
-    globalScore.highScore = save[game]
+end
+
+local function initialize()
+    -- playdate settings
+    math.randomseed(playdate.getSecondsSinceEpoch())
+    playdate.display.setRefreshRate(REFRESH_RATE)
+    -- force gc to run for at least 2ms each frame
+    playdate.setMinimumGCTime(2)
+    gfx.sprite.setAlwaysRedraw(true)
+
+    -- start menu
+    loadSave()
+    menu = Menu(save)
 end
 
 local function writeSave() 
@@ -38,7 +40,7 @@ local function writeSave()
         newSave.bnb2 = save.bnb2
         
         -- unlock bird and beans 2
-        if newSave.bnb1 >= 10000 and newSave.bnb2 < 0 then
+        if newSave.bnb1 > 10000 and newSave.bnb2 < 0 then
             newSave.bnb2 = 0
         end
     else
@@ -46,6 +48,7 @@ local function writeSave()
         newSave.bnb2 = globalScore.highScore
     end
 
+    save = newSave
     playdate.datastore.write(newSave)
 end
 
@@ -54,7 +57,7 @@ local function gameEnd()
     level:endScene()
     level = nil
     gameover = nil
-    menu = Menu()
+    menu = Menu(save)
 end
 
 initialize()
@@ -64,12 +67,12 @@ function playdate.update()
     playdate.timer.updateTimers()
 
     if menu then
-        if menu.nextScene then
+        if menu.goNextScene then
             -- set high score
-            globalScore = Score()
-            game = BNB2
             loadSave()
             -- start level
+            globalScore = Score()
+            globalScore.highScore = save[game]
             level = Level()
             -- remove menu
             menu:remove()
@@ -130,6 +133,7 @@ end
 local sysMenu = playdate.getSystemMenu()
 
 local gameEndItem, error = sysMenu:addMenuItem("quit game", function()
+    BGM:stopAll()
     gameEnd()
 end)
 
