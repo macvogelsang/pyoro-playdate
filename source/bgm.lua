@@ -93,9 +93,12 @@ printTable('init iplayers', players)
 BGM.players = players
 BGM.activeLayers = {}
 
-function BGM:play(bgm)
+function BGM:play(bgm, allowOverlap)
 
-	self:stopAll()
+	if not allowOverlap then
+		self:stopAll()
+	end
+
 	local tracks = bgm.layers or {}
 	-- infinite loop if there's no next song
 	local loop = bgm.nextSong and 1 or 0 

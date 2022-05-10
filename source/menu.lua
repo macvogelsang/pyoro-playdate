@@ -12,7 +12,7 @@ function Menu:init()
     self.cursorIndex = 1
     self.nextScene = false
 
-    BGM:play(BGM.kMainMenu)
+    BGM:play(BGM.kMainMenu, true)
 
     self:setImage(home)
     self:setCenter(0,0)

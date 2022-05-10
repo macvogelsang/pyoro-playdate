@@ -25,6 +25,7 @@ function Food:init()
 	
 	Food.super.init(self)
 
+	self.isFood = true
 	self.type = NORMAL
 	self.speed = 0 
 
@@ -88,12 +89,20 @@ function Food:capture(endPosition)
 	self:clearCollideRect()
 end
 
-function Food:hit(ground)
-	self.hitGround = debugHarmlessFoodOn and true or ground 
+function Food:hit(how, direction)
+	if how == GROUND or debugHarmlessFoodOn then
+		self.hitGround = true
+	end
+
 	if self.hitGround then
 		BLOCKS[self.blockIndex]:destroy()
 	end
-	self.dust:spawn(self.position)
+
+	if how == SPIT then
+		self.dust:spawn(self.position, direction)
+	else
+		self.dust:spawn(self.position)
+	end
 	self:cleanup()
 end
 
@@ -113,8 +122,8 @@ function Food:update()
 	self.position = self.position + velocityStep
 	
 	-- made it to ground level
-	if self.position.y >= 229 and not self.captured and BLOCKS[self.blockIndex].placed then
-		self:hit(true)
+	if self.position.y >= 223 and not self.captured and BLOCKS[self.blockIndex].placed then
+		self:hit(GROUND)
 	end
 
 	if (self.captured and (self.position.y >= self.endPosition.y - 10)) or 

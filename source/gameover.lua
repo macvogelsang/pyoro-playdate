@@ -47,6 +47,7 @@ function GameOver:update()
 
     if self.position.y >= 100 then
         if playdate.buttonJustPressed(playdate.kButtonA) and self.fadeInVal == 0 then
+            BGM:play(BGM.kMainMenu)
             local msg = globalScore.newHighScore and table.random(GOOD_SCORE_MSGS) or table.random(BAD_SCORE_MSGS)
             -- pick message
             gfx.pushContext(self.deathImg)

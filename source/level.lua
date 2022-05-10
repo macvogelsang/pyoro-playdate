@@ -77,15 +77,16 @@ function Level:update()
     end
 
     -- check for food
-    if self.player:hasTongue() and self.player.tongue:hasFood() then
-        local food = self.player.tongue.food
-
-        if not food.scored then
-            -- score the food
-            local points = self:calcPoints(food.capturedPosition.y)
+    local foods, action = self.player:getFood()
+    for i, food in ipairs(foods) do
+        -- score the food
+        if not food.scored then 
+            local points = action == 'tongue' and self:calcPoints(food.capturedPosition.y) or self:calcPoints2(#foods)
             globalScore:addPoints(points)
             food.points:spawn(points, food.capturedPosition, food.type==CLEAR)
-
+            if action == 'spit' then
+                food:hit(SPIT, self.player.facing)
+            end
             -- handle heal and clear foods
             if food.type == HEAL then
                 -- repair one block
@@ -103,14 +104,16 @@ function Level:update()
                     end
                 end
 
-                -- clear all food
+                -- clear all food that isn't captured
                 for i, f in ipairs(self.activeFood) do
-                    f.scored = true
-                    playdate.timer.performAfterDelay(50 * (i-1), function()
-                        f:hit()
-                        globalScore:addPoints(50)
-                        f.points:spawn(50, f.position, true)
-                    end)
+                    if not f.captured then
+                        f.scored = true
+                        playdate.timer.performAfterDelay(50 * (i-1), function()
+                            f:hit(NONGROUND)
+                            globalScore:addPoints(50)
+                            f.points:spawn(50, f.position, true)
+                        end)
+                    end
                 end
 
                 self.foodTimer = CLEAR_ALL_RESET_TIMER * REFRESH_RATE
@@ -211,6 +214,24 @@ function Level:calcPoints(y)
         return 300
     else
         return 1000
+    end
+end
+
+function Level:calcPoints2(numFood) 
+    if numFood == 1 then
+        SFX:play(SFX.kPoints50)
+        return 50
+    elseif numFood == 2 then
+        SFX:play(SFX.kPoints100)
+        return 100
+    elseif numFood == 3 then
+        SFX:play(SFX.kPoints300)
+        return 300
+    elseif numFood >= 4 then
+        SFX:play(SFX.kPoints1000)
+        return 1000
+    else
+        return 0
     end
 end
 

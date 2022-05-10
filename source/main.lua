@@ -75,7 +75,6 @@ end
 local function gameEnd()
     writeSave()
     level:endScene()
-    BGM:stopAll()
     level = nil
     gameover = nil
     menu = Menu()
@@ -91,7 +90,7 @@ function playdate.update()
         if menu.nextScene then
             -- set high score
             globalScore = Score()
-            game = BNB1
+            game = BNB2
             loadSave()
             -- start level
             level = Level()
