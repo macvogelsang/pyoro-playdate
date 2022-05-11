@@ -9,7 +9,7 @@ local vector2D = playdate.geometry.vector2D
 local EXTEND_VELOCITY = 200
 local RETRACT_MULTIPLIER = -5
 local TONGUE_WIDTH = 11
-local SEGMENT_WIDTH = 5 -- lower width means more overlap between segment sprites
+local SEGMENT_WIDTH = 10 -- lower width means more overlap between segment sprites
 local MAX_SEGMENTS = PLAY_AREA_WIDTH / SEGMENT_WIDTH
 -- local variables - these are "class local" but since we only have one tongue this isn't a problem
 local minXPosition = X_LOWER_BOUND + TONGUE_WIDTH/2
@@ -23,13 +23,14 @@ local function createSegment()
 	segment:setImage(tongueImages:getImage(2))
 	segment:setZIndex(LAYERS.tongue - 1)
 	segment:setVisible(false)
+	segment:setCenter(0.5,0.5)
 	segment:add()
 	return segment
 end
 
 local tonguePool = POOL.create( createSegment, MAX_SEGMENTS)
 
-function Tongue:init(x, y, direction)
+function Tongue:init(x, y, direction, withCrank)
 	
 	Tongue.super.init(self)
 
@@ -37,14 +38,16 @@ function Tongue:init(x, y, direction)
 	self:setImage(tongueImages:getImage(1), self.direction == RIGHT and gfx.kImageFlippedX or gfx.kImageUnflipped)
 	self:setZIndex(LAYERS.tongue)
 	self:setCenter(0.5, 0.5)	
-	self:moveTo(x, y)
 	self:setCollideRect(1,1,12,12)
 	self:setGroups({COLLIDE_TONGUE_GROUP})
 
+	self.withCrank = withCrank or false
+	self.crankChange = 0
 	self.segments = {}
 	
-	self.startPosition = Point.new(x,y) 
-	self.position = Point.new(x, y)
+	self.startPosition = Point.new(x,y - 2) 
+	self.position = self.startPosition:copy()
+	self:moveTo(self.position)
 	self.retracted = false
 	self.retracting = false
 
@@ -58,24 +61,33 @@ function Tongue:init(x, y, direction)
 	
 	self:setVisible(false)
 	self:add()
+	if self.withCrank then
+		self:setUpdatesEnabled(false)
+	end
 
 	SFX:play(SFX.kTongueOut)
 end
 
 
 function Tongue:reset()
-	-- self.position = Point.new(INIT_X, INIT_Y)
 	self.velocity = vector2D.new(0,0)
 end
 
+function Tongue:updateForCrank(crankPos, crankChange)
+	local crankAmount = crankPos - 10
+	self.position.y = self.startPosition.y - crankAmount
+	self.position.x = self.startPosition.x + (self.direction * crankAmount)
+	self.crankChange = crankChange
+	self:update()
+end
 
 function Tongue:update()
 
 	-- update tongue position based on current velocity
-	local velocityStep = self.velocity * DT 
-	self.position = self.position + velocityStep
-	self.position.x = self.direction == LEFT and math.floor(self.position.x) or math.ceil(self.position.x)
-	self.position.y = math.floor(self.position.y)
+	if not self.withCrank or self.retracting then
+		local velocityStep = self.velocity * DT 
+		self.position = self.position + velocityStep
+	end
 	
 	-- don't move outside the walls of the game
 	if self.position.x < minXPosition then
@@ -94,10 +106,10 @@ function Tongue:update()
 	end
 
 	-- handle tongue segments (aka tongue extension)
-	if not self.retracting then
-		self:drawSegment()
+	local numSegmentsFromStart = (math.abs(self.position.x - self.startPosition.x))/SEGMENT_WIDTH 
+	if not self.retracting and self.crankChange >= 0 then
+		self:drawSegmentsUntil(numSegmentsFromStart - 1)
 	else
-		local numSegmentsFromStart = math.abs(self.position.x - self.startPosition.x)/SEGMENT_WIDTH
 		self:removeSegmentsUntil(numSegmentsFromStart)
 	end
 
@@ -131,14 +143,22 @@ function Tongue:retract()
 		self.velocity = self.velocity * RETRACT_MULTIPLIER
 		self.retracting = true
 		self:clearCollideRect()
+		if self.withCrank then
+			self:setUpdatesEnabled(true)
+		end
 	end
 end
 
-function Tongue:drawSegment()
-	if math.abs(self.position.x - self.startPosition.x)/SEGMENT_WIDTH > #self.segments then
+function Tongue:drawSegmentsUntil(numSegments)
+	local lastDrawnX = #self.segments > 0 and self.segments[#self.segments].x or self.startPosition.x
+	local lastDrawnY = #self.segments > 0 and self.segments[#self.segments].y or self.startPosition.y
+
+	while #self.segments < numSegments do
 		local segment = tonguePool:obtain() 
 		segment:setImage(tongueImages:getImage(2), self.direction == RIGHT and gfx.kImageFlippedX or gfx.kImageUnflipped)
-		segment:moveTo(self.position.x, self.position.y)
+		segment:moveTo(lastDrawnX + (self.direction * SEGMENT_WIDTH), lastDrawnY - SEGMENT_WIDTH)
+		lastDrawnX = segment.x
+		lastDrawnY = segment.y
 		segment:setVisible(true)
 		table.insert(self.segments, segment)
 	end

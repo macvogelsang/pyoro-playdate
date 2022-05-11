@@ -7,7 +7,6 @@ local vector2D = playdate.geometry.vector2D
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 
 -- constants
-local dt = 0.033
 
 local MAX_VELOCITY = 600
 local GROUND_FRICTION = 0.8
@@ -19,6 +18,9 @@ local WALK_CYCLE_LEN = 4 * FRAME_LEN
 local MUNCH_CYCLE_LEN = 6 * FRAME_LEN -- how many frames long each munch cycle is
 local DEATH_CYCLE_LEN = 10 * FRAME_LEN 
 local PEAK_SPIT  = 5
+local CRANK_DEAD_ZONE = 10
+local MAX_Y_DIST = 222
+local MAX_CRANK = MAX_Y_DIST + 10
 
 local INIT_X = X_LOWER_BOUND + (PLAY_AREA_WIDTH / 2)
 local INIT_Y = 228
@@ -62,6 +64,7 @@ function Player:init()
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
 
+	self.canDoCrank = true
 	self.action = nil
 	self.spitTimer = 0
 	self.munchTimer = 0
@@ -116,7 +119,7 @@ function Player:update()
 		self.velocity.x = 0
 
 		if self.tongueMode then
-			self.action = Tongue(self.position.x, self.position.y - 4, self.facing)
+			self.action = Tongue(self.position.x, self.position.y, self.facing)
 		else -- the spit action does not need a table
 			self.action = true
 			self.spitTimer = PEAK_SPIT
@@ -126,6 +129,29 @@ function Player:update()
 					spit:spawn(self.facing, self.position)
 					break
 				end
+			end
+		end
+	elseif self.tongueMode and not self.dead and not playdate.isCrankDocked() then
+		local crankPos = playdate.getCrankPosition()
+		local crankChange, _ = playdate.getCrankChange()
+		if (crankPos > CRANK_DEAD_ZONE and crankPos < 360 - CRANK_DEAD_ZONE) then 
+			if crankPos > CRANK_DEAD_ZONE and crankPos < MAX_CRANK then
+				if self.canDoCrank and crankChange > 0 then
+					self.velocity.x = 0
+					self.action = Tongue(self.position.x, self.position.y, self.facing, true)
+					self.canDoCrank = false
+				elseif not self.canDoCrank and self.action and self.action.withCrank and not self.action.retracting then
+					self.action:updateForCrank(crankPos, crankChange )
+				end
+			end
+		else
+			-- only allow crank again if it is returned to deadzone
+			if not self.canDoCrank then
+				self.canDoCrank = true
+				SFX:play(SFX.kCrankReturn)
+			end
+			if self.action and self.action.withCrank then
+				self.action:retract()
 			end
 		end
 	end
@@ -168,6 +194,7 @@ function Player:update()
 	-- if not stopped, walking alternates between img 1 and 2
 	if abs(self.velocity.x) < 10 then
 		self.velocity.x = 0
+		self.animationIndex = 1
 	else
 		local animateState = (self.frame % WALK_CYCLE_LEN) < WALK_CYCLE_LEN/2 
 		self.animationIndex = animateState and 1 or 2
@@ -195,7 +222,7 @@ function Player:update()
 	end
 		
 	-- update Player position based on current velocity
-	local velocityStep = self.velocity * dt
+	local velocityStep = self.velocity * DT
 	self.position = self.position + velocityStep
 	
 	-- don't move outside the walls of the game

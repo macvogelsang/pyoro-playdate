@@ -31,6 +31,7 @@ SFX.kMenuBack = {'menuback'}
 SFX.kMenuSelect = {'select'}
 SFX.kPause = {'pause'}
 SFX.kUnpause = {'unpause'}
+SFX.kCrankReturn = {'selection_reverse'}
 
 
 local players = {}
