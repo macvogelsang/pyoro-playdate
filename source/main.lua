@@ -60,6 +60,15 @@ local function gameEnd()
     menu = Menu(save)
 end
 
+local function startLevel()
+    level:setUpdatesEnabled(true)
+    BGM:play(BGM.kNormal)
+    if menu then
+        menu:remove()
+        menu = nil
+    end
+end
+
 initialize()
 
 function playdate.update() 
@@ -75,8 +84,8 @@ function playdate.update()
             globalScore.highScore = save[game]
             level = Level()
             -- remove menu
-            menu:remove()
-            menu = nil
+            menu.goNextScene = false
+            playdate.timer.performAfterDelay(300, startLevel)
         end
     end
     if level then

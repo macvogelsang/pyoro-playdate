@@ -39,7 +39,6 @@ LAYERS = enum({
     'buildings',
     'fireworks',
     'hills',
-    'frame',
     'block',
     'dust',
     'angel',
@@ -49,5 +48,6 @@ LAYERS = enum({
     'player',
     'text',
     'menu',
-    'cursor'
+    'cursor',
+    'frame',
 })

@@ -18,7 +18,6 @@ function Level:init()
     self.player = Player()
     self.player:add()
     globalScore:add()
-    BGM:play(BGM.kNormal)
 
     if #BLOCKS == 0 then
         for i = 1, NUM_BLOCKS do 
@@ -40,6 +39,7 @@ function Level:init()
     -- self.foodTimer = 0
     self:resetFoodTimer()
     self:add()
+    self:setUpdatesEnabled(false)
 end
 
 function Level:resetFoodTimer()

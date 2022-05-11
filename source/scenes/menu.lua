@@ -1,11 +1,12 @@
 class('Menu').extends(gfx.sprite)
 
 local homeTable = gfx.imagetable.new('img/menu/home')
-local about = gfx.image.new('img/menu/about')
+local aboutTable = gfx.imagetable.new('img/menu/about')
 local cursorTable = gfx.imagetable.new('img/player')
+local loading = gfx.image.new('img/scene/background')
 
-local CURSOR_Y = 183
-local CURSOR_X_LOCS = {61, 181, 301}
+local CURSOR_Y = 185
+local CURSOR_X_LOCS = {58, 178, 298}
 local CURSOR_CYCLE_LEN = 5
 
 function Menu:init(save)
@@ -25,8 +26,10 @@ function Menu:init(save)
 
     if self.unlockedG2 then
         self.homeImg = homeTable:getImage(2)
+        self.aboutImg = aboutTable:getImage(2)
     else
         self.homeImg = homeTable:getImage(1)
+        self.aboutImg = aboutTable:getImage(1)
     end
 
     self:setImage(self.homeImg)
@@ -65,7 +68,7 @@ function Menu:update()
             end
         end
         if self.cursorIndex == 3 then
-            self:setImage(about)
+            self:setImage(self.aboutImg)
             self.cursor:setVisible(false)
             SFX:play(SFX.kMenuSelect)
         end
@@ -87,18 +90,19 @@ end
 function Menu:nextScene()
     self.goNextScene = true
     SFX:play(SFX.kMenuSelect)
+    self:setImage(loading)
     self.cursor:setVisible(false)
     self:setUpdatesEnabled(false)
 end
 
 function Menu:drawScores()
-    local y = 206
+    local y = 209
     local cursorOffset = 20
 
     gfx.pushContext(self.homeImg)
         gfx.setFont(SCORE_FONT)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        gfx.fillRect(0, 204, 400, 30)
+        gfx.fillRect(0, 206, 400, 30)
         gfx.drawTextAligned(string.format("HS %06d", self.g1score), CURSOR_X_LOCS[1] + cursorOffset, y, kTextAlignment.center)
         if self.unlockedG2 then
             gfx.drawTextAligned(string.format("HS %06d", self.g2score), CURSOR_X_LOCS[2] + cursorOffset, y, kTextAlignment.center)
