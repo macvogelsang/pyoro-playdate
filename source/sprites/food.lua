@@ -79,7 +79,6 @@ function Food:spawn(foodType, speed, blockIndex)
 end
 
 function Food:capture(endPosition)
-	SFX:play(SFX.kCatchFood)
 	self.velocity = vector2D.new(0, 0) 
 	self.endPosition = endPosition
 	self.capturedPosition = self.position

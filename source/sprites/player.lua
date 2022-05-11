@@ -23,7 +23,7 @@ local MAX_Y_DIST = 222
 local MAX_CRANK = MAX_Y_DIST + 10
 
 local INIT_X = X_LOWER_BOUND + (PLAY_AREA_WIDTH / 2)
-local INIT_Y = 228
+local INIT_Y = 229
 
 -- local variables - these are "class local" but since we only have one player this isn't a problem
 local playerWidth = 19

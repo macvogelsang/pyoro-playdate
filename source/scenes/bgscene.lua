@@ -132,7 +132,7 @@ end
 
 function Buildings:monochrome()
     self.images = {}
-    local gi = GAME == BNB1 and 1 or 2
+    local gi = game == BNB1 and 1 or 2
     self.monochromeMode = true
     self:addBuilding(BLD.kLights[gi])
     self:addBuilding(BLD.k10[gi])

@@ -5,5 +5,8 @@ A Bird and Beans remake for Playdate.
 
 ### Todo
 
-- tweak difficulty including >30k 0.2s spawn rate
-- leave falling sprites
+Post MVP
+- leaf falling sprites
+- improve perf
+- figure out why text overdraws on menu
+- loading transition

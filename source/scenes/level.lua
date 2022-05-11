@@ -35,6 +35,7 @@ function Level:init()
     self.firstClear = false
     self.foodTimerInitial = 4
     self.foodParams = STARTING_FOOD_PARAMS
+    self.fallSpeedModifier = 0
 
     -- self.foodTimer = 0
     self:resetFoodTimer()
@@ -124,7 +125,7 @@ function Level:update()
     end
 
     local spawnFood = 0
-    spawnFood, self.foodTimerInitial, self.foodParams = self.stageController:update(self.scene)
+    spawnFood, self.foodTimerInitial, self.foodParams, self.fallSpeedModifier = self.stageController:update(self.scene)
 
     -- handle food spawning
     while spawnFood > 0 do
@@ -156,6 +157,7 @@ function Level:spawnFood(type)
     else
         speed = self.foodParams.fast.speed
     end
+    speed += self.fallSpeedModifier
 
     if type == nil then
         local randy = math.random()
@@ -210,7 +212,7 @@ function Level:calcPoints(y)
         return 50
     elseif y >= 77 then
         return 100
-    elseif y >= 39 then
+    elseif y >= 40 then
         return 300
     else
         return 1000

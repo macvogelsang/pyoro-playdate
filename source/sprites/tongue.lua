@@ -127,6 +127,7 @@ function Tongue:update()
 			self.food = table.remove(collisions)
 			self:retract()
 			self.food:capture(self.startPosition)
+			SFX:play(SFX.kCatchFood)
 		end
 	end
 

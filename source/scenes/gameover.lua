@@ -36,7 +36,7 @@ function GameOver:init()
     self.fadeInVal = 0
     self.deathImg = gfx.image.new('img/menu/death_msg')
     self.deathSprite = gfx.sprite.new(self.deathImg) 
-    self.deathSprite:setZIndex(LAYERS.text + 1)
+    self.deathSprite:setZIndex(LAYERS.frame + 1)
     self.deathSprite:setCenter(0,0)
     self.deathSprite:moveTo(0,0)
 

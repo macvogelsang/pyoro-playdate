@@ -15,11 +15,19 @@ BLD.k11 = {{name = '11_planet',x = 52,y = 7 }, {name = '11b_planet',x = 47,y = 3
 BLD.k12 = {{name = '12_city',x = 262,y = 8}, {name = '12b_city',x = 274,y = -7, fade=FADE2}}   
 BLD.kLights = {{name = 'lights',x = 0,y = 0}, {name = 'lights2',x = 0,y = 0}}   
 
+-- stage where we start late game
+LATE_GAME_STAGE = 50
+-- number of stages to continually scale the spawn rates in late game
+LATE_GAME_STAGE_COUNT = 50
+-- amount to decrease food timer by each stage in the late game
+FOOD_TIMER_LATE_GAME_MODIFIER = -0.001
+--  how much to change fall speed each stage in the lage game
+FALL_SPEED_LATE_GAME_MODIFIER = 1
+
 -- hard-coded function that determines how the current stage (index) affects the food timer (value)
-STAGE_FOOD_TIMER_FUNC = {2, 1, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, 0.25}-- 12
+FOOD_TIMER_STAGE_DATA = {2, 1, 0.8, 0.7, 0.6, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, {minStage=12, nextThreshold=20, val=0.25}, {minStage = 20, nextThreshold=30, val=0.23}, {minStage = 30, nextThreshold=1000, val = 0.2}}
 
 -- fall speed distributions of food
-
 FOOD_PARAM_FUNC = {
     -- time stage 0 and 1 
     STARTING_FOOD_PARAMS,
@@ -75,6 +83,7 @@ STAGE_TIME = 2
 
 function StageController:init()
     StageController.super.init(self)
+    self.fallSpeedPicker = 1
     self.stage = 0
     self.prevStage = 0
     self.stageLog =  {}
@@ -85,6 +94,8 @@ function StageController:init()
 
     self.foodTimer = STARTING_FOOD_TIMER
     self.foodParams = STARTING_FOOD_PARAMS
+    self.fallSpeedModifier = 0
+    self.foodTimerModifier = 0
 
     self:setStageData(globalScore.stage)
 end
@@ -191,11 +202,11 @@ function StageController:update(scene)
         scene:updateFireworks()
     end
 
-    if self.timeStage ~= self.prevTimeStage and self.timeStage >= 2 then
+    if self.timeStage ~= self.prevTimeStage then
         self:recalculateFoodParams(true)
     end
     self.stageTimeSeconds += FRAME_TIME_SEC
-    return spawnFoodCount, self.foodTimer, self.foodParams
+    return spawnFoodCount, self.foodTimer, self.foodParams, self.fallSpeedModifier
 end
 
 function StageController:reachedStage(stage)
@@ -223,25 +234,48 @@ function StageController:recalculateFoodParams(newTimeStage)
     -- food timers
     local timeBasedFt = 1.91 * math.exp(-0.02 * self.stageTimeSeconds + 0.0366) + 0.65
     local stageBasedFt = 2
-    if self.stage + 1 > #STAGE_FOOD_TIMER_FUNC then
-        stageBasedFt = STAGE_FOOD_TIMER_FUNC[#STAGE_FOOD_TIMER_FUNC]
-    else
-        stageBasedFt = STAGE_FOOD_TIMER_FUNC[self.stage + 1]
+    for i, data in ipairs(FOOD_TIMER_STAGE_DATA) do
+        local minStage = i - 1
+        local ft = data
+        if type(data) == 'table' then
+            minStage = data.minStage
+            ft = data.val
+        end
+        if self.stage < minStage then
+            break
+        else
+            stageBasedFt = ft
+        end
     end
-    -- print(timeBasedFt, stageBasedFt)
     self.foodTimer = math.min(timeBasedFt, stageBasedFt) 
 
-    if newTimeStage then
-        -- fall speed is only based on time (for now)
-        if self.timeStage <= #FOOD_PARAM_FUNC then
-            self.foodParams = FOOD_PARAM_FUNC[self.timeStage]
-        else
-            self.foodParams = FOOD_PARAM_FUNC[#FOOD_PARAM_FUNC]
-        end
+    self.fallSpeedPicker = self.timeStage
+    -- if the score grows too fast, we may need to simulate a later time stage for faster fall speed
+    if self.stage > self.fallSpeedPicker + 5 then
+        self.fallSpeedPicker = self.stage - 5
+        print('bumped up time stage', self.fallSpeedPicker)
+    end
+    if self.fallSpeedPicker > #FOOD_PARAM_FUNC then
+        self.fallSpeedPicker = #FOOD_PARAM_FUNC
+    end
+    if self.fallSpeedPicker <= 0 then
+        self.fallSpeedPicker = 1
+    end
+    self.foodParams = FOOD_PARAM_FUNC[self.fallSpeedPicker]
+
+    -- player is getting too good, lets ramp up the challenge in the LATE GAME
+    local lateGameProgress = self.stage - LATE_GAME_STAGE + 1
+    if lateGameProgress > 0 and lateGameProgress <= LATE_GAME_STAGE_COUNT then
+        self.fallSpeedModifier = lateGameProgress * FALL_SPEED_LATE_GAME_MODIFIER 
+        self.foodTimerModifier = lateGameProgress * FOOD_TIMER_LATE_GAME_MODIFIER 
+        
+        self.foodTimer += self.foodTimerModifier
+    end
+    
+    if newTimeStage and debug then
         print('reached time stage', self.timeStage)
     else
         print('reached stage', self.stage)
     end
-
 
 end

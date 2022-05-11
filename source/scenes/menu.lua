@@ -130,7 +130,7 @@ function Menu:drawVersion()
     gfx.pushContext(self.aboutImg)
         gfx.setFont(SCORE_FONT)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        -- gfx.fillRect(0, 206, 400, 30)
+        gfx.fillRect(270, 220, 130, 30)
         gfx.drawText("VERSION " .. version, 270, 220)
     gfx.popContext()
 end

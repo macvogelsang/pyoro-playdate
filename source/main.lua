@@ -5,7 +5,7 @@ globalScore = nil
 game = BNB1
 
 -- debug globals
-local debug = true
+debug = false 
 debugHarmlessFoodOn = false
 debugPlayerInvincible = true 
 
@@ -107,11 +107,7 @@ function playdate.update()
         end
     end
 
-    if debug then  playdate.drawFPS(0,0) end
-end
-
-function playdate.debugDraw()
-    playdate.drawFPS(0,0)
+    if debug then playdate.drawFPS(0,0) end
 end
 
 function playdate.keyReleased(key) 
@@ -120,7 +116,7 @@ function playdate.keyReleased(key)
     if numkey then
         local points = numkey * 1000
         globalScore:addPoints(points)
-        level.stageController.stageTimeSeconds += 20 * numkey
+        -- level.stageController.stageTimeSeconds += 20 * numkey
     elseif key == 'h' then
         debugHarmlessFoodOn = not debugHarmlessFoodOn
         print('harmless food: ', debugHarmlessFoodOn)
