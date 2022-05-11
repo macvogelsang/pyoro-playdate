@@ -164,7 +164,7 @@ function StageController:update(scene)
     end
 
 
-    if self:reachedStage(40) then
+    if self:reachedStage(40) and not playdate.getReduceFlashing() then
         scene.buildings:startFlashing()
     end
 

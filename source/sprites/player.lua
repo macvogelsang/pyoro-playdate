@@ -65,6 +65,7 @@ function Player:init()
 	self.action = nil
 	self.spitTimer = 0
 	self.munchTimer = 0
+	self.spitPool = {Spit(), Spit(), Spit(), Spit()}
 
 	self.minXPosition = LEFT_WALL 
 	self.maxXPosition = RIGHT_WALL
@@ -120,6 +121,12 @@ function Player:update()
 			self.action = true
 			self.spitTimer = PEAK_SPIT
 			SFX:play(SFX.kSpit)
+			for i, spit in ipairs(self.spitPool) do
+				if not spit:isVisible() then
+					spit:spawn(self.facing, self.position)
+					break
+				end
+			end
 		end
 	end
 

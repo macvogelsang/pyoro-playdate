@@ -105,7 +105,7 @@ function Buildings:init()
     Buildings.super.init(self)
 
     self.images = {}
-    self.monochrome = false
+    self.monochromeMode = false
     self.drawMode = gfx.kDrawModeCopy
     self:setSize(400,240)
     self:setCenter(0,0)
@@ -133,7 +133,7 @@ end
 function Buildings:monochrome()
     self.images = {}
     local gi = GAME == BNB1 and 1 or 2
-    self.monochrome = true
+    self.monochromeMode = true
     self:addBuilding(BLD.kLights[gi])
     self:addBuilding(BLD.k10[gi])
 end
@@ -147,7 +147,7 @@ function Buildings:draw()
     for i = #self.images, 1, -1 do
         local bld = self.images[i]
         local fadeEnd = bld.fade or 1
-        if i == #self.images  and not self.monochrome then
+        if i == #self.images  and not self.monochromeMode then
             bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, FADE_TYPE)
             if self.fadeInVal < fadeEnd then
                 self.fadeInVal += BUILDING_FADE_STEP
