@@ -3,7 +3,6 @@ class('Buildings').extends(gfx.sprite)
 local fireworkImg = gfx.image.new('img/scene/firework')
 local FIREWORK_HEIGHT = 112
 local NUM_FIREWORKS = 12
-local FADE_LAYERS = {0.4, 0.8, 1}
 local FADE_TYPE = gfx.image.kDitherTypeBayer2x2
 function BGScene:init()
     BGScene.super.init(self)
@@ -120,7 +119,8 @@ function Buildings:init()
 end
 
 function Buildings:addBuilding(bld)
-    bld.file = gfx.image.new('img/scene/' .. bld.name)
+    local fade = bld.fade or 1
+    bld.file = gfx.image.new('img/scene/' .. bld.name):fadedImage(fade, FADE_TYPE)
     table.insert(self.images, bld)
     self:markDirty()
     self.fadeInVal = 0 + BUILDING_FADE_STEP
@@ -146,14 +146,11 @@ function Buildings:draw()
     gfx.setImageDrawMode(self.drawMode)
     for i = #self.images, 1, -1 do
         local bld = self.images[i]
-        local fadeEnd = bld.fade or 1
         if i == #self.images  and not self.monochromeMode then
             bld.file:drawFaded(bld.x, bld.y, self.fadeInVal, FADE_TYPE)
-            if self.fadeInVal < fadeEnd then
+            if self.fadeInVal < 1 then
                 self.fadeInVal += BUILDING_FADE_STEP
             end
-        elseif bld.fade then
-            bld.file:drawFaded(bld.x, bld.y, bld.fade, FADE_TYPE)
         else
             bld.file:draw(bld.x, bld.y)
         end
