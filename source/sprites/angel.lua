@@ -14,7 +14,7 @@ local FLASH_CYCLE_LEN = 4 * FRAME_LEN
 local imgTable = gfx.imagetable.new('img/angel')
 local imgOutlineTable = gfx.imagetable.new('img/angel-outline')
 
-local OFFSET_DELAY = 300 -- time in milliseconds to offset angel falling
+local OFFSET_DELAY = 250 -- time in milliseconds to offset angel falling
 local RESTORE_SEQ = {1,2,3,4,5,4,5,4,5,4}
 
 local spawnMonochrome = false

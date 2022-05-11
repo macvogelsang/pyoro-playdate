@@ -4,7 +4,8 @@ local homeTable = gfx.imagetable.new('img/menu/home')
 local aboutTable = gfx.imagetable.new('img/menu/about')
 local cursorTable = gfx.imagetable.new('img/player')
 local loading = gfx.image.new('img/scene/background')
-
+local eyesTable = gfx.imagetable.new('img/menu/eyes')
+local EYES_SEQUENCE = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,5,6,6,4,4,4,4,4,4,4,4,4,4,5,6,4,4,4,4,5,6,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 local CURSOR_Y = 185
 local CURSOR_X_LOCS = {58, 178, 298}
 local CURSOR_CYCLE_LEN = 5
@@ -34,6 +35,8 @@ function Menu:init(save)
 
     self:setImage(self.homeImg)
     self:drawScores()
+    self:drawVersion()
+
     self:setCenter(0,0)
     self:setZIndex(LAYERS.menu)
     self:moveTo(0,0)
@@ -45,6 +48,13 @@ function Menu:init(save)
     self.cursor:moveTo(CURSOR_X_LOCS[1], CURSOR_Y)
     self.cursor:setZIndex(LAYERS.cursor)
     self.cursor:add()
+
+    self.eyes = AnimatedSprite.new(eyesTable)
+    self.eyes:addState(1, 1, nil, {tickStep = 3, frames = EYES_SEQUENCE}, true).asDefault(true)
+    self.eyes:moveTo(36,37)
+    self.eyes:setCenter(0,0)
+    self.eyes:setZIndex(LAYERS.menu + 1)
+    self.eyes:add()
 end
 
 function Menu:update()
@@ -71,11 +81,13 @@ function Menu:update()
             self:setImage(self.aboutImg)
             self.cursor:setVisible(false)
             SFX:play(SFX.kMenuSelect)
+            self.eyes:setVisible(false)
         end
     end
     if playdate.buttonJustPressed(playdate.kButtonB) then
         SFX:play(SFX.kMenuBack)
         self.cursor:setVisible(true)
+        self.eyes:setVisible(true)
         self:setImage(self.homeImg)
     end
     
@@ -91,7 +103,8 @@ function Menu:nextScene()
     self.goNextScene = true
     SFX:play(SFX.kMenuSelect)
     self:setImage(loading)
-    self.cursor:setVisible(false)
+    self.cursor:remove()
+    self.eyes:remove()
     self:setUpdatesEnabled(false)
 end
 
@@ -109,4 +122,15 @@ function Menu:drawScores()
         end
     gfx.popContext()
 
+end
+
+function Menu:drawVersion()
+    local version = playdate.metadata.version
+    print(version)
+    gfx.pushContext(self.aboutImg)
+        gfx.setFont(SCORE_FONT)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        -- gfx.fillRect(0, 206, 400, 30)
+        gfx.drawText("VERSION " .. version, 270, 220)
+    gfx.popContext()
 end

@@ -1,8 +1,15 @@
 import 'imports'
 
+-- globals
 globalScore = nil
 game = BNB1
 
+-- debug globals
+local debug = true
+debugHarmlessFoodOn = false
+debugPlayerInvincible = true 
+
+-- scenes
 local save = nil
 local level = nil
 local gameover = nil
@@ -99,15 +106,13 @@ function playdate.update()
             gameEnd()
         end
     end
-    playdate.drawFPS(0,0)
+
+    if debug then  playdate.drawFPS(0,0) end
 end
 
 function playdate.debugDraw()
-    -- playdate.drawFPS(0,0)
+    playdate.drawFPS(0,0)
 end
-
-debugHarmlessFoodOn = false
-debugPlayerInvincible = true 
 
 function playdate.keyReleased(key) 
     print(key)
@@ -141,30 +146,32 @@ end
 -- menu items
 local sysMenu = playdate.getSystemMenu()
 
-local gameEndItem, error = sysMenu:addMenuItem("quit game", function()
+local gameEndItem, error = sysMenu:addMenuItem("main menu", function()
     BGM:stopAll()
     gameEnd()
 end)
 
-local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", debugPlayerInvincible, function(value)
-    debugPlayerInvincible = value
-end)
+if debug then
+    local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", debugPlayerInvincible, function(value)
+        debugPlayerInvincible = value
+    end)
 
-local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
-    if value == '5k' then
-        globalScore.stage = 5
-        globalScore.score = 5000
-    end
-    if value == '10k' then
-        globalScore.stage = 10
-        globalScore.score = 10000
-    end
-    if value == '30k' then
-        globalScore.stage = 30
-        globalScore.score = 30000
-    end
-    if value == '50k' then
-        globalScore.stage = 50
-        globalScore.score = 50000
-    end
-end)
+    local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
+        if value == '5k' then
+            globalScore.stage = 5
+            globalScore.score = 5000
+        end
+        if value == '10k' then
+            globalScore.stage = 10
+            globalScore.score = 10000
+        end
+        if value == '30k' then
+            globalScore.stage = 30
+            globalScore.score = 30000
+        end
+        if value == '50k' then
+            globalScore.stage = 50
+            globalScore.score = 50000
+        end
+    end)
+end

@@ -24,6 +24,9 @@ function Score:addPoints(points)
 	self.score += points
 	self:markDirty()
 
+	if self.score > 999999 then
+		self.score = 999999
+	end
     self.stage = math.floor(self.score / 1000) 
 	if self.score > self.highScore then
 		self.highScore = self.score
