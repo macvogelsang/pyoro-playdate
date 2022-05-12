@@ -7,14 +7,13 @@ game = BNB1
 -- debug globals
 debug = false 
 debugHarmlessFoodOn = false
-debugPlayerInvincible = true 
+debugPlayerInvincible = false
 
 -- scenes
 local save = nil
 local level = nil
 local gameover = nil
 local menu = nil
-
 
 local function loadSave() 
     save = playdate.datastore.read()
@@ -60,8 +59,12 @@ local function writeSave()
 end
 
 local function gameEnd()
-    writeSave()
-    level:endScene()
+    if globalScore then
+        writeSave()
+    end
+    if level then
+        level:endScene()
+    end
     level = nil
     gameover = nil
     menu = Menu(save)
@@ -116,7 +119,7 @@ function playdate.keyReleased(key)
     if numkey then
         local points = numkey * 1000
         globalScore:addPoints(points)
-        -- level.stageController.stageTimeSeconds += 20 * numkey
+        level.stageController.stageTimeSeconds += 20 * numkey
     elseif key == 'h' then
         debugHarmlessFoodOn = not debugHarmlessFoodOn
         print('harmless food: ', debugHarmlessFoodOn)

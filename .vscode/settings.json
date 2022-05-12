@@ -1,5 +1,5 @@
 {
-  "playdate.output": "bin/Output.pdx",
+  "playdate.output": "bin/BirdAndBeans.pdx",
   "Lua.diagnostics.globals": [
     "import",
     "playdate",
@@ -8,7 +8,8 @@
     "debugHarmlessFoodOn",
     "debugPlayerInvincible",
     "game",
-    "gfx"
+    "gfx",
+    "tongueExtendVelocity"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"

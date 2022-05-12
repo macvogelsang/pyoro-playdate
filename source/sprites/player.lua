@@ -310,6 +310,9 @@ end
 function Player:die()
 	BGM:play(BGM.kPlayerDie)
 	self.dead = true
+	if self:hasTongue() then
+		self.action:retract()
+	end
 	if BAGEL_MODE then
 		self.velocity = vector2D.new(0,0)
 	else

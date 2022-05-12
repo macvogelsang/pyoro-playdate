@@ -206,13 +206,13 @@ function Level:getAbsoluteDistsToPlayer()
 end
 
 function Level:calcPoints(y)
-    if y >= 163 then
+    if y > 163 then
         return 10
-    elseif y >= 115 then
+    elseif y > 113 then
         return 50
-    elseif y >= 77 then
+    elseif y > 77 then
         return 100
-    elseif y >= 40 then
+    elseif y > 42 then
         return 300
     else
         return 1000

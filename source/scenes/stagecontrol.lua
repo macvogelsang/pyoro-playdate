@@ -80,6 +80,11 @@ STARTING_FOOD_TIMER = 2
 STAGE_TIME_INTERVAL = 20
 -- time stage before stage_timer kicks in
 STAGE_TIME = 2
+-- starting tongue velocity
+STARTING_TONGUE_VELOCITY = 200
+tongueExtendVelocity = STARTING_TONGUE_VELOCITY
+-- how much to increment tongue velocity for each food speed increase
+TONGUE_VELOCITY_UNIT = STARTING_TONGUE_VELOCITY / STARTING_FOOD_PARAMS.slow.speed * 0.25
 
 function StageController:init()
     StageController.super.init(self)
@@ -96,7 +101,9 @@ function StageController:init()
     self.foodParams = STARTING_FOOD_PARAMS
     self.fallSpeedModifier = 0
     self.foodTimerModifier = 0
+    self.slowestFoodSpeed = STARTING_FOOD_PARAMS.slow.speed
 
+    tongueExtendVelocity = STARTING_TONGUE_VELOCITY
     self:setStageData(globalScore.stage)
 end
 
@@ -270,6 +277,13 @@ function StageController:recalculateFoodParams(newTimeStage)
         self.foodTimerModifier = lateGameProgress * FOOD_TIMER_LATE_GAME_MODIFIER 
         
         self.foodTimer += self.foodTimerModifier
+    end
+
+    local currentLowSpeed = self.foodParams.slow.speed + self.fallSpeedModifier
+    if currentLowSpeed > self.slowestFoodSpeed then
+        local tongeVelocityIncr = (currentLowSpeed - self.slowestFoodSpeed) * TONGUE_VELOCITY_UNIT
+        tongueExtendVelocity += tongeVelocityIncr
+        self.slowestFoodSpeed = currentLowSpeed 
     end
     
     if newTimeStage and debug then
