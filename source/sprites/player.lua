@@ -8,8 +8,7 @@ local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 
 -- constants
 
-local MAX_VELOCITY = 600
-local GROUND_FRICTION = 0.8
+local GROUND_FRICTION = 0.1
 
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
 local MUNCH_TIME_SEC = 0.5
@@ -30,8 +29,7 @@ local playerWidth = 19
 local LEFT_WALL = X_LOWER_BOUND + playerWidth/2 
 local RIGHT_WALL = X_UPPER_BOUND - playerWidth/2
 
-local RUN_VELOCITY = 14 
-local MAX_RUN_VELOCITY = 240
+local PLAYER_ACCELERATION = 80
 local COLOR, MONO = 1, 2
 
 local p1ImgTable = gfx.imagetable.new('img/player') 
@@ -115,6 +113,10 @@ function Player:update()
 		self:runRight()
 	end
 
+	if (playdate.buttonJustReleased('left') or playdate.buttonJustReleased('right')) and not self.dead and not self.action then
+		SFX:play(SFX.kWalk2, true)
+	end
+
 	if playdate.buttonJustPressed(playdate.kButtonA) and not self.action and not self.dead then
 		self.velocity.x = 0
 
@@ -164,13 +166,6 @@ function Player:update()
 		self.velocity.x = self.velocity.x * GROUND_FRICTION
 	end
 
-	-- set the maximum velocity based on if the O button is down or not
-	if playdate.buttonIsPressed("B") then
-		MAX_RUN_VELOCITY = 120
-	else
-		MAX_RUN_VELOCITY = 80
-	end
-
 	-- collision check
 	local collisions = self:overlappingSprites()
 	if #collisions > 0 and not self.dead then
@@ -181,11 +176,6 @@ function Player:update()
 		end
 	end
 
-	-- don't accellerate past max velocity
-	if self.velocity.x > MAX_RUN_VELOCITY then self.velocity.x = MAX_RUN_VELOCITY
-	elseif self.velocity.x < -MAX_RUN_VELOCITY then self.velocity.x = -MAX_RUN_VELOCITY
-	end
-	
 
 	-- update frame counter to control various animation timings
 	self.frame += 1
@@ -194,7 +184,6 @@ function Player:update()
 	-- if not stopped, walking alternates between img 1 and 2
 	if abs(self.velocity.x) < 10 then
 		self.velocity.x = 0
-		self.animationIndex = 1
 	else
 		local animateState = (self.frame % WALK_CYCLE_LEN) < WALK_CYCLE_LEN/2 
 		self.animationIndex = animateState and 1 or 2
@@ -296,14 +285,14 @@ end
 function Player:runLeft()
 	self.facing = LEFT
 	self.flip = gfx.kImageUnflipped
-	self.velocity.x = max(self.velocity.x - RUN_VELOCITY, -MAX_VELOCITY)
+	self.velocity.x = -playerMaxRunVelocity --max(self.velocity.x - PLAYER_ACCELERATION, -playerMaxRunVelocity)
 	self.munchTimer = 0 
 end
 
 function Player:runRight()
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
-	self.velocity.x = min(self.velocity.x + RUN_VELOCITY, MAX_VELOCITY)
+	self.velocity.x = playerMaxRunVelocity --min(self.velocity.x + PLAYER_ACCELERATION, playerMaxRunVelocity)
 	self.munchTimer = 0
 end
 

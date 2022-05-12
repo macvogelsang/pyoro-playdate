@@ -5,7 +5,7 @@ local img = gfx.image.new('img/gameover')
 local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 local font = gfx.font.new('img/fonts/connection_bold')
-local FADE_DURATION_FRAMES = 0.5 * REFRESH_RATE
+local FADE_DURATION_FRAMES = 0.8 * REFRESH_RATE
 local FADE_INCREMENT =1 / FADE_DURATION_FRAMES 
 local DEATH_MSG_FRAMES = 2 * REFRESH_RATE
 
@@ -47,7 +47,8 @@ function GameOver:update()
 
     if self.position.y >= 100 then
         if playdate.buttonJustPressed(playdate.kButtonA) and self.fadeInVal == 0 then
-            BGM:play(BGM.kMainMenu)
+            SFX:play(SFX.kMenuBack)
+            playdate.timer.performAfterDelay(800, function() BGM:play(BGM.kMainMenu) end)
             local msg = globalScore.newHighScore and globalScore.score > 10000 and table.random(GOOD_SCORE_MSGS) or table.random(BAD_SCORE_MSGS)
             -- pick message
             gfx.pushContext(self.deathImg)

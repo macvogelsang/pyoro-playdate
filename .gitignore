@@ -3,5 +3,5 @@ bin/
 
 .DS_Store
 
-bean_analysis/*.mp4
-bean_analysis/test_frames/
+research/*.mp4
+research/test_frames/

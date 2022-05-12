@@ -11,6 +11,13 @@ Post MVP
 - figure out why text overdraws on menu
 - loading transition
 
+### v1.0.2
+
+- Increased ground friction to more closely match the original
+- Player velocity now increases along with bean speed
+- Adjusted menu sound effects
+- Fixed another main menu button bug
+
 ### v1.0.1
 
 - Tweaked launcher animation

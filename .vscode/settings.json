@@ -9,7 +9,8 @@
     "debugPlayerInvincible",
     "game",
     "gfx",
-    "tongueExtendVelocity"
+    "tongueExtendVelocity",
+    "playerMaxRunVelocity"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"

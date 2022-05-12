@@ -1,6 +1,6 @@
 
 local snd = playdate.sound
-local WALK_VOL = 0.6
+local WALK_VOL = 0.8
 
 SFX = {}
 
@@ -32,7 +32,7 @@ SFX.kMenuSelect = {'select'}
 SFX.kPause = {'pause'}
 SFX.kUnpause = {'unpause'}
 SFX.kCrankReturn = {'selection_reverse'}
-
+SFX.kStart = {'start'}
 
 local players = {}
 
@@ -59,9 +59,3 @@ function SFX:stop(sfx)
 	local name = sfx[1]
 	self.players[name]:stop()
 end
-
-
--- function SFX:playBackgroundMusic()
--- 	local filePlayer = snd.fileplayer.new('sfx/main_theme')
--- 	filePlayer:play(0) -- repeat forever
--- end

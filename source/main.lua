@@ -65,8 +65,13 @@ local function gameEnd()
     if level then
         level:endScene()
     end
+    if menu then
+        menu:remove()
+    end
+    menu = nil
     level = nil
     gameover = nil
+
     menu = Menu(save)
 end
 

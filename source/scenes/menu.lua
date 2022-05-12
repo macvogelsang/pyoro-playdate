@@ -101,7 +101,7 @@ end
 
 function Menu:nextScene()
     self.goNextScene = true
-    SFX:play(SFX.kMenuSelect)
+    SFX:play(SFX.kStart)
     self:setImage(loading)
     self.cursor:remove()
     self.eyes:remove()

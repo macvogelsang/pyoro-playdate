@@ -87,8 +87,11 @@ function Food:capture(endPosition)
 end
 
 function Food:hit(how, direction)
-	if how == GROUND or debugHarmlessFoodOn then
+	if how == GROUND then
 		self.hitGround = true
+	end
+	if debugHarmlessFoodOn then
+		self.hitGround = false
 	end
 
 	if self.hitGround then

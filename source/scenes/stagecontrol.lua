@@ -86,6 +86,10 @@ tongueExtendVelocity = STARTING_TONGUE_VELOCITY
 -- how much to increment tongue velocity for each food speed increase
 TONGUE_VELOCITY_UNIT = STARTING_TONGUE_VELOCITY / STARTING_FOOD_PARAMS.slow.speed * 0.25
 
+STARTING_MAX_RUN_VELOCITY = 80
+RUN_VELOCITY_UNIT = STARTING_MAX_RUN_VELOCITY / STARTING_FOOD_PARAMS.slow.speed * 0.6
+OVERALL_MAX_RUN_VELOCITY = 200
+
 function StageController:init()
     StageController.super.init(self)
     self.fallSpeedPicker = 1
@@ -104,6 +108,7 @@ function StageController:init()
     self.slowestFoodSpeed = STARTING_FOOD_PARAMS.slow.speed
 
     tongueExtendVelocity = STARTING_TONGUE_VELOCITY
+    playerMaxRunVelocity = STARTING_MAX_RUN_VELOCITY
     self:setStageData(globalScore.stage)
 end
 
@@ -283,6 +288,8 @@ function StageController:recalculateFoodParams(newTimeStage)
     if currentLowSpeed > self.slowestFoodSpeed then
         local tongeVelocityIncr = (currentLowSpeed - self.slowestFoodSpeed) * TONGUE_VELOCITY_UNIT
         tongueExtendVelocity += tongeVelocityIncr
+        local runVelocityIncr = (currentLowSpeed - self.slowestFoodSpeed) * RUN_VELOCITY_UNIT
+        playerMaxRunVelocity = math.min(playerMaxRunVelocity + runVelocityIncr, OVERALL_MAX_RUN_VELOCITY)
         self.slowestFoodSpeed = currentLowSpeed 
     end
     

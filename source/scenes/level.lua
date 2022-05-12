@@ -221,16 +221,16 @@ end
 
 function Level:calcPoints2(numFood) 
     if numFood == 1 then
-        SFX:play(SFX.kPoints50)
+        SFX:play(SFX.kPoints50, true)
         return 50
     elseif numFood == 2 then
-        SFX:play(SFX.kPoints100)
+        SFX:play(SFX.kPoints100, true)
         return 100
     elseif numFood == 3 then
-        SFX:play(SFX.kPoints300)
+        SFX:play(SFX.kPoints300, true)
         return 300
     elseif numFood >= 4 then
-        SFX:play(SFX.kPoints1000)
+        SFX:play(SFX.kPoints1000, true)
         return 1000
     else
         return 0
