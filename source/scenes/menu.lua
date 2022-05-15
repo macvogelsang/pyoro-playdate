@@ -11,7 +11,7 @@ local CURSOR_Y = 185
 local CURSOR_X_LOCS = {58, 178, 298}
 local CURSOR_CYCLE_LEN = 5
 
-local LOADING_DUR_FRAMES = 0.7 * REFRESH_RATE
+local LOADING_DUR_FRAMES = 0.3 * REFRESH_RATE
 local FADE_STEP_SIZE = 1 / LOADING_DUR_FRAMES
 
 function Menu:init(save)

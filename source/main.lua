@@ -4,6 +4,7 @@ import 'imports'
 globalScore = nil
 game = BNB1
 leafParticles = 'auto' 
+audioSetting = 'sfx+music'
 
 -- debug globals
 debug = true 
@@ -155,9 +156,20 @@ local gameEndItem, error = sysMenu:addMenuItem("main menu", function()
     gameEnd()
 end)
 
+local particleItem, error = sysMenu:addOptionsMenuItem('audio', {'sfx+music', 'sfx', 'music'}, function(value)
+    audioSetting = value
+    if value == 'sfx' then
+        BGM:turnOff()
+    else
+        BGM:turnOn()
+    end
+
+end)
+
 local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'auto', 'off', 'on'}, function(value)
     leafParticles = value
 end)
+
 
 if debug then
     local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", debugPlayerInvincible, function(value)

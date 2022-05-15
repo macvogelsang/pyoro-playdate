@@ -47,6 +47,9 @@ end
 SFX.players = players
 
 function SFX:play(sfx, allowOverlap)
+	if audioSetting == 'music' then
+		return
+	end
 	local name = sfx[1]
 	if allowOverlap then
 		self.players[name]:play(1)		

@@ -92,19 +92,23 @@ end
 printTable('init iplayers', players)
 BGM.players = players
 BGM.activeLayers = {}
+BGM.volumes = {}
 
 function BGM:play(bgm, allowOverlap)
-
 	if not allowOverlap then
 		self:stopAll()
 	end
 
+	local volume = audioSetting == 'sfx' and 0.01 or (bgm.vol or 1)
 	local tracks = bgm.layers or {}
 	-- infinite loop if there's no next song
 	local loop = bgm.nextSong and 1 or 0 
 
 	tracks = {bgm.name, table.unpack(tracks)}
 	for i, name in ipairs(tracks) do
+		if i == 1 then -- only set volume for first track; rest are layers
+			self.players[name]:setVolume(volume)
+		end
 		self.players[name]:play(loop)		
 	end
 
@@ -118,7 +122,13 @@ function BGM:addLayer(layer)
 			return
 		end
 		local layerName = self.nowPlaying.layers[layer]
-		self.players[layerName]:setVolume(self.nowPlaying.layerVol)
+		local volume = self.nowPlaying.layerVol 
+		if audioSetting == 'sfx' then
+			-- don't set player volume, but remember what it should be set to if music is turned back on
+			self.volumes[layerName] = volume
+		else
+			self.players[layerName]:setVolume(volume)
+		end
 		self.activeLayers[layer] = layerName
 	end
 end
@@ -132,6 +142,20 @@ function BGM:stop()
 	tracks = {table.unpack(tracks), self.nowPlaying.name}
 	for i, name in ipairs(tracks) do
 		self.players[name]:stop()
+	end
+end
+
+function BGM:turnOff()
+	for k, p in pairs(self.players) do
+		self.volumes[k] = p:getVolume()
+		p:setVolume(0.01)
+		
+	end
+end
+
+function BGM:turnOn()
+	for k, p in pairs(self.players) do
+		p:setVolume(self.volumes[k] or 1)
 	end
 end
 
