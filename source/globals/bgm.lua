@@ -166,6 +166,7 @@ function BGM:stopAll()
 
 	-- reset layer volumes
 	for l, layerName in pairs(self.activeLayers) do
+		self.volumes[layerName] = 0.01
 		self.players[layerName]:setVolume(0.01)
 	end
 

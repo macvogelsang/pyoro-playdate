@@ -86,7 +86,7 @@ function Leaf:update()
 	end
 	
 	-- made it to ground level
-	if self.position.y >= 240 then
+	if self.position.y >= 240 or globalScore.levelDone then
 		self:destroy(true)
 	end
 

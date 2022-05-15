@@ -8,6 +8,7 @@ function Score:init()
 
 	self.score = 0
     self.stage = 0
+	self.levelDone = false
 
     self.highScore = 10000
 	self:setZIndex(LAYERS.text)

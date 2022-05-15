@@ -23,7 +23,7 @@ end
 function Spit:spawn(facing, playerPos)
     self.globalFlip = facing == LEFT and 0 or 1
 	self:changeState(math.random(1,4))
-	self:moveTo(playerPos.x + (facing * SPIT_WIDTH/2), playerPos.y - 8)
+	self:moveTo(playerPos.x + (facing * (SPIT_WIDTH/2 + 7)), playerPos.y - 17)
 	self:setVisible(true)
 	self:playAnimation()
     self.inUse = true

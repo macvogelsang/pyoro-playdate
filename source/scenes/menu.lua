@@ -23,6 +23,7 @@ function Menu:init(save)
     self.ai = 1
     self.ready = false
     self.loading = false
+    self.onHomePage = true
 
     BGM:play(BGM.kMainMenu, true)
 
@@ -64,13 +65,13 @@ end
 
 function Menu:update()
     if not self.loading then
-        if playdate.buttonJustPressed(playdate.kButtonRight) then
+        if playdate.buttonJustPressed(playdate.kButtonRight) and self.onHomePage then
             self.cursorIndex = math.ring(self.cursorIndex + 1, 1, self.menuItems+1)
         end
-        if playdate.buttonJustPressed(playdate.kButtonLeft) then
+        if playdate.buttonJustPressed(playdate.kButtonLeft) and self.onHomePage then
             self.cursorIndex = math.ring(self.cursorIndex - 1, 1, self.menuItems+1)
         end
-        if playdate.buttonJustPressed(playdate.kButtonA) then
+        if playdate.buttonJustPressed(playdate.kButtonA) and self.onHomePage then
             if self.cursorIndex == 1 then
                 game = BNB1
                 self:nextScene()
@@ -88,13 +89,15 @@ function Menu:update()
                 self.cursor:setVisible(false)
                 SFX:play(SFX.kMenuSelect)
                 self.eyes:setVisible(false)
+                self.onHomePage = false
             end
         end
-        if playdate.buttonJustPressed(playdate.kButtonB) then
+        if playdate.buttonJustPressed(playdate.kButtonB) and not self.onHomePage then
             SFX:play(SFX.kMenuBack)
             self.cursor:setVisible(true)
             self.eyes:setVisible(true)
             self:setImage(self.homeImg)
+            self.onHomePage = true
         end
     else
         self:setImage(loading:fadedImage(1-(self.frame * FADE_STEP_SIZE), gfx.image.kDitherTypeScreen))

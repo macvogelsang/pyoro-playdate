@@ -22,10 +22,12 @@ local function loadSave()
     if not save then
         save = {
             bnb1 = 10000,
-            bnb2 = -1
+            bnb2 = -1,
+            leafParticles = leafParticles
         }
         game = BNB1
     end
+    leafParticles = save.leafParticles or 'auto'
 end
 
 local function initialize()
@@ -55,7 +57,7 @@ local function writeSave()
         newSave.bnb1 = save.bnb1
         newSave.bnb2 = globalScore.highScore
     end
-
+    newSave.leafParticles = leafParticles
     save = newSave
     playdate.datastore.write(newSave)
 end
@@ -63,6 +65,9 @@ end
 local function gameEnd()
     if globalScore then
         writeSave()
+    end
+    if gameover then
+        gameover:endScene()
     end
     if level then
         level:endScene()
@@ -156,7 +161,7 @@ local gameEndItem, error = sysMenu:addMenuItem("main menu", function()
     gameEnd()
 end)
 
-local particleItem, error = sysMenu:addOptionsMenuItem('audio', {'sfx+music', 'sfx', 'music'}, function(value)
+local particleItem, error = sysMenu:addOptionsMenuItem('audio', {'sfx+music', 'sfx', 'music'}, audioSetting, function(value)
     audioSetting = value
     if value == 'sfx' then
         BGM:turnOff()
@@ -166,7 +171,7 @@ local particleItem, error = sysMenu:addOptionsMenuItem('audio', {'sfx+music', 's
 
 end)
 
-local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'auto', 'off', 'on'}, function(value)
+local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'auto', 'off', 'on'}, leafParticles, function(value)
     leafParticles = value
 end)
 

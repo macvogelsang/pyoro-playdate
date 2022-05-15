@@ -259,6 +259,7 @@ function Level:endScene()
     self.scene:removeLayers()
     self.scene:remove()
     self.player:remove()
+    globalScore.levelDone = true
     globalScore:remove()
     self.stageController = nil
 end
