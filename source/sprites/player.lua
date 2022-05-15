@@ -61,8 +61,8 @@ function Player:init()
 	self.collisionResponse = gfx.sprite.kCollisionTypeOverlap
 	self.animationIndex = 1
 	self.frame = 1
-	self.facing = RIGHT
-	self.flip = gfx.kImageFlippedX
+	self.facing = LEFT 
+	self.flip = gfx.kImageUnflipped
 
 	self.canDoCrank = true
 	self.action = nil

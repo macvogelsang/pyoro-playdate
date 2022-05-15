@@ -67,7 +67,7 @@ local function gameEnd()
         level:endScene()
     end
     if menu then
-        menu:remove()
+        menu:endScene()
     end
     menu = nil
     level = nil
@@ -77,10 +77,9 @@ local function gameEnd()
 end
 
 local function startLevel()
-    level:setUpdatesEnabled(true)
-    BGM:play(BGM.kNormal)
+    level:startScene()
     if menu then
-        menu:remove()
+        menu:endScene()
         menu = nil
     end
 end
@@ -92,16 +91,16 @@ function playdate.update()
     playdate.timer.updateTimers()
 
     if menu then
-        if menu.goNextScene then
+        if menu.loading and not level then
             -- set high score
             loadSave()
-            -- start level
             globalScore = Score()
             globalScore.highScore = save[game]
+            -- start level
             level = Level()
             -- remove menu
-            menu.goNextScene = false
-            playdate.timer.performAfterDelay(300, startLevel)
+        elseif menu.ready then
+            startLevel()
         end
     end
     if level then
@@ -156,7 +155,7 @@ local gameEndItem, error = sysMenu:addMenuItem("main menu", function()
     gameEnd()
 end)
 
-local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'off', 'on', 'auto'}, function(value)
+local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'auto', 'off', 'on'}, function(value)
     leafParticles = value
 end)
 

@@ -6,9 +6,13 @@ local cursorTable = gfx.imagetable.new('img/player')
 local loading = gfx.image.new('img/scene/background')
 local eyesTable = gfx.imagetable.new('img/menu/eyes')
 local EYES_SEQUENCE = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,5,6,6,4,4,4,4,4,4,4,4,4,4,5,6,4,4,4,4,5,6,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+
 local CURSOR_Y = 185
 local CURSOR_X_LOCS = {58, 178, 298}
 local CURSOR_CYCLE_LEN = 5
+
+local LOADING_DUR_FRAMES = 0.7 * REFRESH_RATE
+local FADE_STEP_SIZE = 1 / LOADING_DUR_FRAMES
 
 function Menu:init(save)
     Menu.super.init(self)
@@ -17,7 +21,8 @@ function Menu:init(save)
     self.cursorIndex = game == BNB1 and 1 or 2
     self.frame = 1
     self.ai = 1
-    self.goNextScene = false
+    self.ready = false
+    self.loading = false
 
     BGM:play(BGM.kMainMenu, true)
 
@@ -58,39 +63,46 @@ function Menu:init(save)
 end
 
 function Menu:update()
-    if playdate.buttonJustPressed(playdate.kButtonRight) then
-        self.cursorIndex = math.ring(self.cursorIndex + 1, 1, self.menuItems+1)
-    end
-    if playdate.buttonJustPressed(playdate.kButtonLeft) then
-        self.cursorIndex = math.ring(self.cursorIndex - 1, 1, self.menuItems+1)
-    end
-    if playdate.buttonJustPressed(playdate.kButtonA) then
-        if self.cursorIndex == 1 then
-            game = BNB1
-            self:nextScene()
+    if not self.loading then
+        if playdate.buttonJustPressed(playdate.kButtonRight) then
+            self.cursorIndex = math.ring(self.cursorIndex + 1, 1, self.menuItems+1)
         end
-        if self.cursorIndex == 2 then
-            if self.unlockedG2 then
-                game = BNB2
+        if playdate.buttonJustPressed(playdate.kButtonLeft) then
+            self.cursorIndex = math.ring(self.cursorIndex - 1, 1, self.menuItems+1)
+        end
+        if playdate.buttonJustPressed(playdate.kButtonA) then
+            if self.cursorIndex == 1 then
+                game = BNB1
                 self:nextScene()
-            else
-                SFX:play(SFX.kPause)
+            end
+            if self.cursorIndex == 2 then
+                if self.unlockedG2 then
+                    game = BNB2
+                    self:nextScene()
+                else
+                    SFX:play(SFX.kPause)
+                end
+            end
+            if self.cursorIndex == 3 then
+                self:setImage(self.aboutImg)
+                self.cursor:setVisible(false)
+                SFX:play(SFX.kMenuSelect)
+                self.eyes:setVisible(false)
             end
         end
-        if self.cursorIndex == 3 then
-            self:setImage(self.aboutImg)
-            self.cursor:setVisible(false)
-            SFX:play(SFX.kMenuSelect)
-            self.eyes:setVisible(false)
+        if playdate.buttonJustPressed(playdate.kButtonB) then
+            SFX:play(SFX.kMenuBack)
+            self.cursor:setVisible(true)
+            self.eyes:setVisible(true)
+            self:setImage(self.homeImg)
+        end
+    else
+        self:setImage(loading:fadedImage(1-(self.frame * FADE_STEP_SIZE), gfx.image.kDitherTypeScreen))
+        if self.frame >= LOADING_DUR_FRAMES then
+            self.ready = true
         end
     end
-    if playdate.buttonJustPressed(playdate.kButtonB) then
-        SFX:play(SFX.kMenuBack)
-        self.cursor:setVisible(true)
-        self.eyes:setVisible(true)
-        self:setImage(self.homeImg)
-    end
-    
+        
     if self.frame % CURSOR_CYCLE_LEN == 0 then
         self.ai = self.ai == 1 and 2 or 1
     end
@@ -99,13 +111,23 @@ function Menu:update()
     self.frame += 1
 end
 
+-- function Menu:draw()
+--     self:drawScores()
+-- end
+
+function Menu:endScene() 
+    self.cursor:remove()
+    self.eyes:remove()
+    self:remove()
+end
+
 function Menu:nextScene()
-    self.goNextScene = true
     SFX:play(SFX.kStart)
+    self.loading = true
+    self.frame = 0
     self:setImage(loading)
     self.cursor:remove()
     self.eyes:remove()
-    self:setUpdatesEnabled(false)
 end
 
 function Menu:drawScores()

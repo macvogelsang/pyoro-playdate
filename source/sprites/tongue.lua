@@ -38,7 +38,7 @@ function Tongue:init(x, y, direction, withCrank)
 	self:setZIndex(LAYERS.tongue)
 	self:setCenter(0.5, 0.5)	
 	self:setCollideRect(1,1,12,12)
-	self:setGroups({COLLIDE_TONGUE_GROUP})
+	self:setCollidesWithGroups({COLLIDE_FOOD_GROUP})
 
 	self.withCrank = withCrank or false
 	self.crankChange = 0
@@ -88,17 +88,6 @@ function Tongue:update()
 		self.position = self.position + velocityStep
 	end
 	
-	-- don't move outside the walls of the game
-	if self.position.x < minXPosition then
-		self:retract()
-	elseif self.position.x > maxXPosition then
-		self:retract()
-	elseif self.position.y < 0 then
-		self:retract()
-	end
-
-	self:moveTo(self.position)
-
 	-- only draw tongue after it extends a bit
 	if math.abs(self.position.y - self.startPosition.y) >= 10 then
 		self:setVisible(true)
@@ -133,6 +122,17 @@ function Tongue:update()
 	if self.food then
 		self.food.position = self.position
 	end
+
+	-- don't move outside the walls of the game
+	if self.position.x < minXPosition then
+		self:retract()
+	elseif self.position.x > maxXPosition then
+		self:retract()
+	elseif self.position.y < 0 then
+		self:retract()
+	end
+
+	self:moveTo(self.position)
 
 end
 
@@ -171,8 +171,6 @@ function Tongue:removeSegmentsUntil(numSegments)
 		tonguePool:free(segment)
 	end
 end
-
-
 
 function Tongue:hasFood() 
 	return self.food ~= nil

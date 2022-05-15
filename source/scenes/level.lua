@@ -17,6 +17,7 @@ function Level:init()
 
     self.player = Player()
     self.player:add()
+    self.player:setUpdatesEnabled(false)
     globalScore:add()
 
     if #BLOCKS == 0 then
@@ -235,6 +236,12 @@ function Level:calcPoints2(numFood)
     else
         return 0
     end
+end
+
+function Level:startScene()
+    self:setUpdatesEnabled(true)
+    self.player:setUpdatesEnabled(true)
+    BGM:play(BGM.kNormal)
 end
 
 function Level:endScene()
