@@ -89,7 +89,6 @@ for _, v in pairs(BGM) do
 
 end
 
-printTable('init iplayers', players)
 BGM.players = players
 BGM.activeLayers = {}
 BGM.volumes = {}

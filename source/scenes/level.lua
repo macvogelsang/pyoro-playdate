@@ -35,6 +35,7 @@ function Level:init()
     self.activeFood = {}
     self.firstClear = false
     self.foodTimerInitial = 4
+    self.spawnClearFood = 0
     self.foodParams = STARTING_FOOD_PARAMS
     self.fallSpeedModifier = 0
 
@@ -127,16 +128,19 @@ function Level:update()
 
     local spawnFood = 0
     spawnFood, self.foodTimerInitial, self.foodParams, self.fallSpeedModifier = self.stageController:update(self.scene)
+    -- build up queue of clear all foods to spawn
+    self.spawnClearFood += spawnFood
 
     -- handle food spawning
-    while spawnFood > 0 do
-        self:spawnFood(CLEAR)
-        spawnFood -= 1
-    end
     self.foodTimer -= 1
     if self.foodTimer <= 0 then
         self:resetFoodTimer()
         self:spawnFood()
+        -- spawn all built up clear all foods
+        while self.spawnClearFood > 0 do
+            self:spawnFood(CLEAR)
+            self.spawnClearFood -= 1
+        end
     end
 
     local monochromeTicker = globalScore.monochromeTicker

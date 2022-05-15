@@ -7,9 +7,9 @@ leafParticles = 'auto'
 audioSetting = 'sfx+music'
 
 -- debug globals
-debug = true 
+debug = false 
 debugHarmlessFoodOn = false
-debugPlayerInvincible = true
+debugPlayerInvincible = false
 
 -- scenes
 local save = nil
@@ -176,22 +176,22 @@ if debug then
         debugPlayerInvincible = value
     end)
 
-    -- local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
-    --     if value == '5k' then
-    --         globalScore.stage = 5
-    --         globalScore.score = 5000
-    --     end
-    --     if value == '10k' then
-    --         globalScore.stage = 10
-    --         globalScore.score = 10000
-    --     end
-    --     if value == '30k' then
-    --         globalScore.stage = 30
-    --         globalScore.score = 30000
-    --     end
-    --     if value == '50k' then
-    --         globalScore.stage = 50
-    --         globalScore.score = 50000
-    --     end
-    -- end)
+    local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
+        if value == '5k' then
+            globalScore.stage = 5
+            globalScore.score = 5000
+        end
+        if value == '10k' then
+            globalScore.stage = 10
+            globalScore.score = 10000
+        end
+        if value == '30k' then
+            globalScore.stage = 30
+            globalScore.score = 30000
+        end
+        if value == '50k' then
+            globalScore.stage = 50
+            globalScore.score = 50000
+        end
+    end)
 end

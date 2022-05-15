@@ -111,10 +111,6 @@ function Menu:update()
     self.frame += 1
 end
 
--- function Menu:draw()
---     self:drawScores()
--- end
-
 function Menu:endScene() 
     self.cursor:remove()
     self.eyes:remove()
@@ -148,7 +144,7 @@ end
 
 function Menu:drawVersion()
     local version = playdate.metadata.version
-    print(version)
+    print('game version', version)
     gfx.pushContext(self.aboutImg)
         gfx.setFont(SCORE_FONT)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)

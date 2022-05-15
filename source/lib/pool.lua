@@ -4,7 +4,6 @@ local poolmt = {__index = pool}
 function pool.create(newObject, poolSize)
 	poolSize = poolSize or 16
 	assert(newObject, "A function that returns new objects for the pool is required.")
-    print('created pool size', poolSize)
 	local freeObjects = {}
 	for _ = 1, poolSize do
 		table.insert(freeObjects, newObject())
