@@ -5,18 +5,12 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local FOOD_WIDTH = 20
-local FALL_VELOCITY = {SLOW=40, MED=60, FAST=100} 
 local FRAME_DUR = BAGEL_MODE and REFRESH_RATE // 10 or REFRESH_RATE // 3
 local NUM_FRAMES = BAGEL_MODE and 6 or 4
-
-local minXPosition = X_LOWER_BOUND + FOOD_WIDTH/2
-local maxXPosition = X_UPPER_BOUND - FOOD_WIDTH/2 
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
 local foodTable = BAGEL_MODE and gfx.imagetable.new('img/bagel') or gfx.imagetable.new('img/seed') 
 local foodOutlineTable = gfx.imagetable.new('img/seed-outline') 
-
 local spawnMonochrome = false
 
 function Food:init()
@@ -47,6 +41,10 @@ function Food:init()
 
 	self.points = Points()
 	self.dust = Dust()
+	-- self.leaves = {Leaf(2), Leaf(2)}
+
+	self:setGroups({COLLIDE_FOOD_GROUP})
+	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
 	self:add()
 	self:setVisible(false)
 	self:setUpdatesEnabled(false)
@@ -62,6 +60,7 @@ function Food:spawn(foodType, speed, blockIndex)
 	self.position.x = BLOCKS[self.blockIndex].xCenter + 1
 	self.position.y = 0
 	self.velocity.y = self.speed
+
 	self.imgRow = self.type
 	if self.imgRow > 2 then
 		self.imgRow = 2
@@ -69,13 +68,20 @@ function Food:spawn(foodType, speed, blockIndex)
 	self.imgTable = spawnMonochrome and foodOutlineTable or foodTable
 	self:setImage(self.imgTable:getImage(1, self.imgRow))
 	self:setCollideRect(4,1,12,18)
-	self:setCollidesWithGroups({COLLIDE_PLAYER_GROUP, COLLIDE_TONGUE_GROUP})
 	if debugHarmlessFoodOn then
 		self:setCollidesWithGroups({COLLIDE_TONGUE_GROUP})
 	end
 	self:moveTo(self.position)
 	self:setVisible(true)
 	self:setUpdatesEnabled(true)
+end
+
+function Food:spawnLeaves(spitVelocity)
+	local spitVelocityScaled = (spitVelocity * 0.25) * math.random()
+	local leaf1 = Leaf(2)
+	leaf1:spawn(self.position, self.speed)
+	-- local leaf2 = Leaf(2)
+	-- leaf2:spawn(self.position + spitVelocityScaled, self.speed)
 end
 
 function Food:capture(endPosition)
@@ -127,7 +133,7 @@ function Food:update()
 	end
 
 	if (self.captured and (self.position.y >= self.endPosition.y - 10)) or 
-		self.position.y >= 250 then
+		self.position.y >= 240 then
 		self:cleanup()
 	end
 

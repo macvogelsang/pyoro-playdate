@@ -39,6 +39,7 @@ LAYERS = enum({
     'buildings',
     'fireworks',
     'hills',
+    'leaves',
     'block',
     'dust',
     'angel',

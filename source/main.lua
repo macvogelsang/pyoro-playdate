@@ -3,11 +3,12 @@ import 'imports'
 -- globals
 globalScore = nil
 game = BNB1
+leafParticles = 'auto' 
 
 -- debug globals
-debug = false 
+debug = true 
 debugHarmlessFoodOn = false
-debugPlayerInvincible = false
+debugPlayerInvincible = true
 
 -- scenes
 local save = nil
@@ -155,27 +156,31 @@ local gameEndItem, error = sysMenu:addMenuItem("main menu", function()
     gameEnd()
 end)
 
+local particleItem, error = sysMenu:addOptionsMenuItem('leaf FX', {'off', 'on', 'auto'}, function(value)
+    leafParticles = value
+end)
+
 if debug then
     local invincibleItem, error = sysMenu:addCheckmarkMenuItem("invincibility", debugPlayerInvincible, function(value)
         debugPlayerInvincible = value
     end)
 
-    local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
-        if value == '5k' then
-            globalScore.stage = 5
-            globalScore.score = 5000
-        end
-        if value == '10k' then
-            globalScore.stage = 10
-            globalScore.score = 10000
-        end
-        if value == '30k' then
-            globalScore.stage = 30
-            globalScore.score = 30000
-        end
-        if value == '50k' then
-            globalScore.stage = 50
-            globalScore.score = 50000
-        end
-    end)
+    -- local scoreItem, error = sysMenu:addOptionsMenuItem('set score', {'5k', '10k', '30k', '50k'}, '5k', function(value)
+    --     if value == '5k' then
+    --         globalScore.stage = 5
+    --         globalScore.score = 5000
+    --     end
+    --     if value == '10k' then
+    --         globalScore.stage = 10
+    --         globalScore.score = 10000
+    --     end
+    --     if value == '30k' then
+    --         globalScore.stage = 30
+    --         globalScore.score = 30000
+    --     end
+    --     if value == '50k' then
+    --         globalScore.stage = 50
+    --         globalScore.score = 50000
+    --     end
+    -- end)
 end

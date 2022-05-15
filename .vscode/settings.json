@@ -10,7 +10,9 @@
     "game",
     "gfx",
     "tongueExtendVelocity",
-    "playerMaxRunVelocity"
+    "playerMaxRunVelocity",
+    "leafParticlesOn",
+    "leafParticles"
   ],
   "Lua.workspace.library": [
     "/Users/mac.vogelsang/Developer/PlaydateSDK/CoreLibs"

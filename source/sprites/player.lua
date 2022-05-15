@@ -9,7 +9,7 @@ local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 -- constants
 
 local GROUND_FRICTION = 0.1
-
+local SPIT_VELOCITY = 100
 local STAND, LOWER, CATCH, MUNCH, TURN, JUMP, CROUCH = 1, 2, 3, 4, 5, 6, 7
 local MUNCH_TIME_SEC = 0.5
 
@@ -28,6 +28,7 @@ local INIT_Y = 229
 local playerWidth = 19
 local LEFT_WALL = X_LOWER_BOUND + playerWidth/2 
 local RIGHT_WALL = X_UPPER_BOUND - playerWidth/2
+
 
 local PLAYER_ACCELERATION = 80
 local COLOR, MONO = 1, 2
@@ -48,6 +49,7 @@ function Player:init()
 	self:setCenter(0.5, 1)
 	self:moveTo(INIT_X, INIT_Y)
 	self:setGroups({COLLIDE_PLAYER_GROUP})
+	self:setCollidesWithGroups({COLLIDE_FOOD_GROUP})
 
 	if self.tongueMode then
 		self:setCollideRect(2,1,18,18)
@@ -67,7 +69,7 @@ function Player:init()
 	self.spitTimer = 0
 	self.munchTimer = 0
 	self.spitPool = {Spit(), Spit(), Spit(), Spit()}
-
+	self.spitVelocity = vector2D.new(SPIT_VELOCITY, -SPIT_VELOCITY)
 	self.minXPosition = LEFT_WALL 
 	self.maxXPosition = RIGHT_WALL
 
@@ -263,29 +265,44 @@ function Player:getFood()
 	if self:hasFoodOnTongue() then
 		return {self.action.food}, 'tongue'
 	elseif self.spitTimer == PEAK_SPIT - 1 then
-		local spitOrigin = Point.new(self.position.x, self.position.y - 8) 
-		local xmax = self.facing == LEFT and X_LOWER_BOUND - spitOrigin.x or X_UPPER_BOUND - spitOrigin.x
-		local ymax = spitOrigin.y - 0
-		local dxdy = math.min(math.abs(ymax), math.abs(xmax))
-
-		local hits = gfx.sprite.querySpritesAlongLine(spitOrigin.x, spitOrigin.y, spitOrigin.x + (self.facing * dxdy), spitOrigin.y - dxdy)
-		local foods = {}
-		for i, f in ipairs(hits) do
-			if f.isFood then
-				f:capture(self.position)
-				table.insert(foods, f)
-			end
-		end
-		return foods, 'spit'
+		return self:getSpitHits(), 'spit'
 	else
 		return {}, nil
 	end
+end
+
+function Player:getSpitHits()
+	local spitOrigin = Point.new(self.position.x, self.position.y - 8) 
+	local xmax = self.facing == LEFT and X_LOWER_BOUND - spitOrigin.x or X_UPPER_BOUND - spitOrigin.x
+	local ymax = spitOrigin.y - 0
+	local dxdy = math.min(math.abs(ymax), math.abs(xmax))
+
+	local hits = gfx.sprite.querySpritesAlongLine(spitOrigin.x, spitOrigin.y, spitOrigin.x + (self.facing * dxdy), spitOrigin.y - dxdy)
+	local foods = {}
+	for i, f in ipairs(hits) do
+		if f.isFood then
+			if (globalScore.stage < 20 and leafParticles == 'auto') or leafParticles == 'on' then
+				f:spawnLeaves(self.spitVelocity)
+			end
+			f:capture(self.position)
+			table.insert(foods, f)
+		end
+
+		if f.isLeaf then
+			f.velocity = self.spitVelocity:copy()
+			if f.size == 2 and math.random() < 0.5 then
+				f:destroy(false)
+			end
+		end
+	end
+	return foods
 end
 
 function Player:runLeft()
 	self.facing = LEFT
 	self.flip = gfx.kImageUnflipped
 	self.velocity.x = -playerMaxRunVelocity --max(self.velocity.x - PLAYER_ACCELERATION, -playerMaxRunVelocity)
+	self.spitVelocity.x = -SPIT_VELOCITY
 	self.munchTimer = 0 
 end
 
@@ -293,6 +310,7 @@ function Player:runRight()
 	self.facing = RIGHT
 	self.flip = gfx.kImageFlippedX
 	self.velocity.x = playerMaxRunVelocity --min(self.velocity.x + PLAYER_ACCELERATION, playerMaxRunVelocity)
+	self.spitVelocity.x = SPIT_VELOCITY
 	self.munchTimer = 0
 end
 
