@@ -4,7 +4,7 @@
 A Bird and Beans remake for Playdate. This source code is the final 1.0.3 version of the game before it was removed from itch.io. The code has had all the copyrighted music stripped, but may be helpful for anyone for learning the Playdate SDK. This was my first Playdate project and many aspects of the code are messy. 
 
 # Latest release
-The .pdx file for the v1.0.3 version can be found [here](https://github.com/macvogelsang/pyoro/releases/tag/v1.0.3) in the git releases sidebar.
+The .pdx file for the v1.0.3 version can be found [here](https://github.com/macvogelsang/pyoro/releases/tag/1.0.3) in the git releases sidebar.
 
 # Changelog
 
