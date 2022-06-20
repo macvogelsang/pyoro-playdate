@@ -320,9 +320,5 @@ function Player:die()
 	if self:hasTongue() then
 		self.action:retract()
 	end
-	if BAGEL_MODE then
-		self.velocity = vector2D.new(0,0)
-	else
-		self.velocity =vector2D.new(0, 30)
-	end
+	self.velocity =vector2D.new(0, 30)
 end

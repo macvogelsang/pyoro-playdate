@@ -5,11 +5,11 @@ local Point = playdate.geometry.point
 local vector2D = playdate.geometry.vector2D
 
 -- constants
-local FRAME_DUR = BAGEL_MODE and REFRESH_RATE // 10 or REFRESH_RATE // 3
-local NUM_FRAMES = BAGEL_MODE and 6 or 4
+local FRAME_DUR = REFRESH_RATE // 3
+local NUM_FRAMES = 4
 
 -- contain a sprite for tongue end and a sprite to repeat for tongue segments
-local foodTable = BAGEL_MODE and gfx.imagetable.new('img/bagel') or gfx.imagetable.new('img/seed') 
+local foodTable = gfx.imagetable.new('img/seed') 
 local foodOutlineTable = gfx.imagetable.new('img/seed-outline') 
 local spawnMonochrome = false
 
