@@ -69,23 +69,23 @@ end
 local players = {}
 -- set up BGM players table
 for _, v in pairs(BGM) do
-	local name = v.name
-	local layers = v.layers or {}
-	local volume = v.vol or 1.0
+	-- local name = v.name
+	-- local layers = v.layers or {}
+	-- local volume = v.vol or 1.0
 
-	players[name] = snd.fileplayer.new('bgm/' .. name, 0.5)
-	players[name]:setVolume(volume)
-	players[name]:setStopOnUnderrun(false)
-	for i, layer in ipairs(layers) do
-		players[layer] = snd.fileplayer.new('bgm/' .. layer, 0.5)
-		players[layer]:setVolume(0.01)
-		players[layer]:setStopOnUnderrun(false)
-	end
+	-- players[name] = snd.fileplayer.new('bgm/' .. name, 0.5)
+	-- players[name]:setVolume(volume)
+	-- players[name]:setStopOnUnderrun(false)
+	-- for i, layer in ipairs(layers) do
+	-- 	players[layer] = snd.fileplayer.new('bgm/' .. layer, 0.5)
+	-- 	players[layer]:setVolume(0.01)
+	-- 	players[layer]:setStopOnUnderrun(false)
+	-- end
 
-	-- some songs only play once then continue to another track
-	if v.nextSong then
-		players[name]:setFinishCallback(playSongAfter, v.nextSong)
-	end
+	-- -- some songs only play once then continue to another track
+	-- if v.nextSong then
+	-- 	players[name]:setFinishCallback(playSongAfter, v.nextSong)
+	-- end
 
 end
 
@@ -94,42 +94,43 @@ BGM.activeLayers = {}
 BGM.volumes = {}
 
 function BGM:play(bgm, allowOverlap)
-	if not allowOverlap then
-		self:stopAll()
-	end
+	return nil 
+	-- if not allowOverlap then
+	-- 	self:stopAll()
+	-- end
 
-	local volume = audioSetting == 'sfx' and 0.01 or (bgm.vol or 1)
-	local tracks = bgm.layers or {}
-	-- infinite loop if there's no next song
-	local loop = bgm.nextSong and 1 or 0 
+	-- local volume = audioSetting == 'sfx' and 0.01 or (bgm.vol or 1)
+	-- local tracks = bgm.layers or {}
+	-- -- infinite loop if there's no next song
+	-- local loop = bgm.nextSong and 1 or 0 
 
-	tracks = {bgm.name, table.unpack(tracks)}
-	for i, name in ipairs(tracks) do
-		if i == 1 then -- only set volume for first track; rest are layers
-			self.players[name]:setVolume(volume)
-		end
-		self.players[name]:play(loop)		
-	end
+	-- tracks = {bgm.name, table.unpack(tracks)}
+	-- for i, name in ipairs(tracks) do
+	-- 	if i == 1 then -- only set volume for first track; rest are layers
+	-- 		self.players[name]:setVolume(volume)
+	-- 	end
+	-- 	self.players[name]:play(loop)		
+	-- end
 
-	self.nowPlaying = bgm
+	-- self.nowPlaying = bgm
 end
 
 function BGM:addLayer(layer)
-	if self.activeLayers[layer] == nil then
-		if not self.nowPlaying.layers then
-			print('!!! no layers on current track')
-			return
-		end
-		local layerName = self.nowPlaying.layers[layer]
-		local volume = self.nowPlaying.layerVol 
-		if audioSetting == 'sfx' then
-			-- don't set player volume, but remember what it should be set to if music is turned back on
-			self.volumes[layerName] = volume
-		else
-			self.players[layerName]:setVolume(volume)
-		end
-		self.activeLayers[layer] = layerName
-	end
+	-- if self.activeLayers[layer] == nil then
+	-- 	if not self.nowPlaying.layers then
+	-- 		print('!!! no layers on current track')
+	-- 		return
+	-- 	end
+	-- 	local layerName = self.nowPlaying.layers[layer]
+	-- 	local volume = self.nowPlaying.layerVol 
+	-- 	if audioSetting == 'sfx' then
+	-- 		-- don't set player volume, but remember what it should be set to if music is turned back on
+	-- 		self.volumes[layerName] = volume
+	-- 	else
+	-- 		self.players[layerName]:setVolume(volume)
+	-- 	end
+	-- 	self.activeLayers[layer] = layerName
+	-- end
 end
 
 function BGM:stop()

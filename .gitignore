@@ -1,5 +1,6 @@
 assets/
 bin/
+old/
 
 .DS_Store
 
